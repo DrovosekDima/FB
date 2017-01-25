@@ -4,16 +4,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_teams"
+        android:id="@+id/nav_teams_"
         android:title="@string/nav_teams"
         tools:menuCategory="container"></item>
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_settings"
+            android:id="@+id/nav_settings_"
             android:icon="@drawable/ic_menu_manage"
             android:title="@string/nav_settings" />
         <item
-            android:id="@+id/nav_rate"
+            android:id="@+id/nav_rate_"
             android:title="@string/nav_rate"
             android:icon="@android:drawable/star_big_on" />
         <item

@@ -1,5 +1,6 @@
 package com.egor.drovosek.kursv01;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,7 +22,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.egor.drovosek.kursv01.R.string.title;
 
@@ -30,6 +37,13 @@ public class MainActivity extends AppCompatActivity
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+
+    View view_Group;
+    private DrawerLayout mDrawerLayout;
+    ExpandableListAdapter mMenuAdapter;
+    ExpandableListView expandableList;
+    List<String> listDataHeader;
+    HashMap<String, List<String>> listDataChild;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +68,45 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        expandableList = (ExpandableListView) findViewById(R.id.navigationmenu);
+        prepareListData();
+        mMenuAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+
+        // setting list adapter
+        expandableList.setAdapter(mMenuAdapter);
+        expandableList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView expandableListView,
+                                        View view,
+                                        int groupPosition,
+                                        int childPosition, long id) {
+                //Log.d("DEBUG", "submenu item clicked");
+                Toast.makeText(MainActivity.this,
+                        "Header: "+String.valueOf(groupPosition) +
+                                "\nItem: "+ String.valueOf(childPosition), Toast.LENGTH_SHORT)
+                        .show();
+                view.setSelected(true);
+                if (view_Group != null) {
+                    view_Group.setBackgroundColor(Color.parseColor("#ffffff"));
+                }
+                view_Group = view;
+                view_Group.setBackgroundColor(Color.parseColor("#DDDDDD"));
+                mDrawerLayout.closeDrawers();
+                return false;
+            }
+        });
+        expandableList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+                //Log.d("DEBUG", "heading clicked");
+                return false;
+            }
+        });
         // добавление списка комманд
         /*Menu navMenu = navigationView.getMenu();
         SubMenu subMenu = navMenu.getItem(0).getSubMenu();
@@ -113,7 +163,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_teams) {
+        /*if (id == R.id.nav_teams) {
             // Handle the camera action
         } else if (id == R.id.nav_settings) {
 
@@ -121,7 +171,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_rate) {
 
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -195,5 +245,25 @@ public class MainActivity extends AppCompatActivity
             }
             return null;
         }
+    }
+
+    private void prepareListData() {
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<String>>();
+
+        // Adding data header
+        listDataHeader.add(getString(R.string.nav_teams));
+        listDataHeader.add(getString(R.string.nav_settings));
+        listDataHeader.add(getString(R.string.nav_rate));
+        listDataHeader.add(getString(R.string.nav_exit));
+
+        // Adding child data
+        // получаем список комманд из db table TEAMS
+        List<String> heading1 = new ArrayList<String>();
+        heading1.add("Динамо Минск");
+        heading1.add("БАТЭ");
+        heading1.add("Шахтер Солигорск");
+
+        listDataChild.put(listDataHeader.get(0), heading1);// Header, Child data
     }
 }
