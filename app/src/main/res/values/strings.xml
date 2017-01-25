@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Bel.Football v.0.1</string>
+    <string name="title">БЕЛАРУСЬ - ВЫСШАЯ ЛИГА v.0.1</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="action_change_news">Сменить ленту новостей</string>
+    <string name="action_feedback">Обратная связь</string>
+    <string name="section_format">Fragment: %1$d</string>
+    <string name="nav_teams">Комманды</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="nav_exit">Выход</string>
+    <string name="nav_rate">Оценить приложение</string>
+</resources>
