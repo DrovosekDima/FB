@@ -27,7 +27,8 @@
            android:background="@android:color/white"
            android:layout_marginTop="160dp"
            android:choiceMode="singleChoice"
-           android:id="@+id/navigationmenu">
+           android:id="@+id/navigationmenu"
+           android:groupIndicator="@android:color/transparent">
        </ExpandableListView>
 
     </android.support.design.widget.NavigationView>
