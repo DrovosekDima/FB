@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.egor.drovosek.kursv01.DB.DataMiner;
 import com.egor.drovosek.kursv01.R;
 
 

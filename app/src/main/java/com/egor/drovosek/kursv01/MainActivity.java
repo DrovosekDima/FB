@@ -1,5 +1,6 @@
 package com.egor.drovosek.kursv01;
 
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -26,6 +27,9 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.egor.drovosek.kursv01.DB.DataMiner;
+import com.egor.drovosek.kursv01.DB.FootballDBHelper;
+import com.egor.drovosek.kursv01.DB.Schema;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.NewsTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTabFragment;
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity
 
         expandableList = (ExpandableListView) findViewById(R.id.navigationmenu);
         prepareListData();
+
         mMenuAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
 
         // setting list adapter
@@ -207,10 +212,25 @@ public class MainActivity extends AppCompatActivity
 
         // Adding child data
         // получаем список комманд из db table TEAMS
+        FootballDBHelper mDB = new FootballDBHelper(getApplicationContext());
+        Cursor curs = mDB.getAllTeams(2016);
+
         List<String> heading1 = new ArrayList<String>();
-        heading1.add("Динамо Минск");
-        heading1.add("БАТЭ");
-        heading1.add("Шахтер Солигорск");
+
+        if (curs != null) {
+            curs.moveToFirst();
+            while (!curs.isLast())
+            {
+                String tmpWName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
+                heading1.add(tmpWName);
+                curs.moveToNext();
+            }
+        }
+        else {
+            heading1.add("Динамо Минск");
+            heading1.add("БАТЭ");
+            heading1.add("Шахтер Солигорск");
+        }
 
         listDataChild.put(listDataHeader.get(0), heading1);// Header, Child data
     }
