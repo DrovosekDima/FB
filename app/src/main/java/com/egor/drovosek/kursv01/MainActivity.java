@@ -217,7 +217,8 @@ public class MainActivity extends AppCompatActivity
 
         List<String> heading1 = new ArrayList<String>();
 
-        if (curs != null) {
+        if (curs != null && curs.getCount()>0) {
+
             curs.moveToFirst();
             while (!curs.isLast())
             {
@@ -225,6 +226,8 @@ public class MainActivity extends AppCompatActivity
                 heading1.add(tmpWName);
                 curs.moveToNext();
             }
+            String tmpWName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
+            heading1.add(tmpWName);
         }
         else {
             heading1.add("Динамо Минск");

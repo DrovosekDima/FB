@@ -7,7 +7,7 @@ package com.egor.drovosek.kursv01.DB;
 public class Schema {
 
     public static final String DATABASE_NAME = "football.db";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_MATCHES = "matches";
     public static final String TABLE_TEAMS = "teams";
@@ -26,6 +26,7 @@ public class Schema {
     public static final String MATCHES_SEASON          = "season";
     public static final String MATCHES_DATEM           = "datem";
     public static final String MATCHES_LOCATION        = "location";
+    public static final String MATCHES_STATUS          = "status"; //COMPLETED, INPROGRESS, FUTURE
 
     // запрос на создание таблицы matches
     public static final String CREATE_TABLE_MATCHES = "create table "
@@ -38,8 +39,12 @@ public class Schema {
             + MATCHES_ROUND + " integer, "
             + MATCHES_SEASON + " integer, "
             + MATCHES_DATEM + " datetime, "
-            + MATCHES_LOCATION + " vchar);";
+            + MATCHES_LOCATION + " vchar, "
+            + MATCHES_STATUS + " vchar);";
 
+    public static final String STATUS_COMPLETED       = "COMPLETED";
+    public static final String STATUS_INPROGRESS      = "INPROGRESS";
+    public static final String STATUS_FUTURE          = "FUTURE";
     /*таблица teams*/
     public static final String TEAMS_M_ID          = "T_ID";
     public static final String TEAMS_TITLE         = "title";
