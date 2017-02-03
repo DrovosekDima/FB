@@ -49,6 +49,9 @@ public class ScheduleTabFragment extends Fragment {
         ExpAdapter = new RoundMatchExpandListAdapter(getActivity().getApplicationContext(), ExpListItems);
         ExpandList.setAdapter(ExpAdapter);
 
+        //todo развернуть матчи определенного тура (последнего или первого)
+        ExpandList.expandGroup(0);
+
         /*todo: временно. очистка teams table*/
         //FootballDBHelper db = new FootballDBHelper(getActivity().getApplicationContext());
         //db.ClearTable(Schema.TABLE_TEAMS);
