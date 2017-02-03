@@ -45,6 +45,8 @@ import static com.egor.drovosek.kursv01.R.string.title;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static int gdSeason = 2016;
+
     //private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
 

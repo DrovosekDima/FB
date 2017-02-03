@@ -105,7 +105,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
           JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID
           where m.season=2016;
         ---------------------------------------------*/
-        public Cursor getAllMatches(int season) throws SQLException
+        public Cursor getMatchesSeason(int season) throws SQLException
         {
             SQLiteDatabase db = this.getReadableDatabase();
 
@@ -116,13 +116,41 @@ public class FootballDBHelper extends SQLiteOpenHelper
                     + " JOIN " + TABLE_TEAMS + " AS GUEST ON m." + MATCHES_HOME_TEAM_ID + "=GUEST." + TEAMS_M_ID
                     + " WHERE m." + MATCHES_SEASON + "=" + String.valueOf(season);*/
 
-            String selectQuery = "SELECT m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season=2016;";
+            String selectQuery = "SELECT m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+ String.valueOf(season)+";";
 
             Cursor mCursor = db.rawQuery(selectQuery, null);
 
          return mCursor;
 
         }
+
+    /*---------------------------------------------
+  возвращает курсор со всеми матчами за определенный год и тур
+
+    SELECT m.round, HOME.title, GUEST.title, m.score_home, m.score_guest, m.datem, m.place
+    FROM matches AS m
+    JOIN teams AS HOME ON m.home_team_id=HOME.T_ID
+    JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID
+    where m.season=2016 AND m.round=1;
+  ---------------------------------------------*/
+    public Cursor getMatchesSeasonRound(int season, int round) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+            /*String selectQuery = "SELECT m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location "
+                    + "FROM "
+                    + TABLE_MATCHES + " AS m "
+                    + " JOIN " + TABLE_TEAMS + " AS HOME ON m." + MATCHES_HOME_TEAM_ID + "=HOME." + TEAMS_M_ID
+                    + " JOIN " + TABLE_TEAMS + " AS GUEST ON m." + MATCHES_HOME_TEAM_ID + "=GUEST." + TEAMS_M_ID
+                    + " WHERE m." + MATCHES_SEASON + "=" + String.valueOf(season);*/
+
+        String selectQuery = "SELECT m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+  String.valueOf(season) +" AND m.round=" + String.valueOf(round)+";";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        return mCursor;
+
+    }
 
         /*---------------------------------------------
          ---------------------------------------------*/
@@ -140,6 +168,27 @@ public class FootballDBHelper extends SQLiteOpenHelper
             }
             else
                return -1;
+        }
+
+    /*--------------------------------------------------------------------------------------
+        Возвращает количество матчей в определенном туре данного сезона
+       SELECT COUNT(round) as matchesinround FROM matches WHERE season=2016 and round=1;
+     -------------------------------------------------------------------------------------*/
+        public int getCountRoundsInSeason(int season, int round) throws SQLException
+        {
+            SQLiteDatabase db = this.getReadableDatabase();
+
+            /*String selectQuery = "SELECT  " + TEAMS_M_ID + " FROM " + TABLE_TEAMS +
+                    " WHERE " + TEAMS_TITLE + "='" + inTeamName + "'";*/
+            String selectQuery = "SELECT COUNT(round) as numberofrounds FROM matches WHERE season="+String.valueOf(season)+" and round="+String.valueOf(round)+";";
+
+            Cursor mCursor = db.rawQuery(selectQuery, null);
+            if (mCursor !=null) {
+                mCursor.moveToFirst();
+                return mCursor.getInt(mCursor.getColumnIndex("numberofrounds"));
+            }
+            else
+                return 0;
         }
 
         public void addTeam(ContentValues _teamValue)
