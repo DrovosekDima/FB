@@ -7,10 +7,11 @@
 
     <TextView
         android:id="@+id/group_round_name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="25dp"
-        android:text="aa"
-        android:textSize="25dp" />
+        android:background="@drawable/group_border"
+        android:textSize="25dp"
+        android:textAlignment="center" />
 
 </LinearLayout>

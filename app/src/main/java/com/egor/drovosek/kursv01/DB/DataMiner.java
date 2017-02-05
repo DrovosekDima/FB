@@ -1,5 +1,7 @@
 package com.egor.drovosek.kursv01.DB;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -162,11 +164,11 @@ public class DataMiner {
     - и заодно извлекаем инфо о голах
     --------------------------------------------------*/
 
-    public int populateScheduleWithGoals(int inSeason, int inRound) {
+    public int populateScheduleWithGoals( int inSeason, int inRound) {
         int RetCode = 0;
 
         /*todo: добавить проверку есть ли такие данные в таблице*/
-        GrabMatchesTask mt = new GrabMatchesTask();
+        GrabMatchesTask mt = new GrabMatchesTask(cont);
         mt.execute(String.valueOf(inSeason), String.valueOf(inRound));
 
         return RetCode;
@@ -182,11 +184,26 @@ public class DataMiner {
         int inSeason;
         int inRound;
 
+        private Activity activity;
+        private ProgressDialog dialog;
+        private Context context;
+
+        public GrabMatchesTask(Context inContext) {
+            this.context = inContext;
+            this.dialog = new ProgressDialog(context);
+            this.dialog.setTitle("Загрузка");
+            this.dialog.setMessage("Информации о туре...");
+
+            /*if(!this.dialog.isShowing()){
+                this.dialog.show();
+            }*/
+        }
+
         @Override
         protected void onPreExecute()
         {
             super.onPreExecute();
-            Toast.makeText(cont, "Получение данных ...", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(cont, "Получение данных ...", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -306,6 +323,8 @@ public class DataMiner {
 
                 }
             }
+
+            //this.dialog.dismiss();
 
         }
     }

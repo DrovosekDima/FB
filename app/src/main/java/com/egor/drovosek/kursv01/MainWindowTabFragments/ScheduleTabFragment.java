@@ -153,6 +153,10 @@ public class ScheduleTabFragment extends Fragment {
         gr.setName("Тур 6");
         listRounds.add(gr);
 
+        gr = new GroupRound();
+        gr.setName("Тур 7");
+        listRounds.add(gr);
+
         return listRounds;
     }
 }
