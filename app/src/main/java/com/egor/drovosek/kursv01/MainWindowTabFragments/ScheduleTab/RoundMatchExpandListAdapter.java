@@ -5,15 +5,22 @@ package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
  */
 
 import java.util.ArrayList;
+import java.util.List;
 
+import android.app.ListActivity;
+import android.app.Notification;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.egor.drovosek.kursv01.DB.DataMiner;
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
@@ -169,5 +176,56 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
         /*if (children.get(groupPosition).size() > 0)
             children.remove(groupPosition);*/
+    }
+    private class ProgressTask extends AsyncTask<String, Void, Boolean> {
+        private ProgressDialog dialog;
+        List<Notification.MessagingStyle.Message> titles;
+        private ListActivity activity;
+        //private List<Message> messages;
+        public ProgressTask(ListActivity activity) {
+            this.activity = activity;
+            context = activity;
+            dialog = new ProgressDialog(context);
+        }
+
+
+
+        /** progress dialog to show user that the backup is processing. */
+
+        /** application context. */
+        private Context context;
+
+        protected void onPreExecute() {
+            this.dialog.setMessage("Progress start");
+            this.dialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+
+            notifyDataSetChanged();
+
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+
+            if (success) {
+                Toast.makeText(context, "OK", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, "Error", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        protected Boolean doInBackground(final String... args) {
+            try{
+
+                return true;
+            } catch (Exception e){
+                Log.e("tag", "error", e);
+                return false;
+            }
+        }
+
+
     }
 }
