@@ -45,7 +45,9 @@ import static com.egor.drovosek.kursv01.R.string.title;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    //todo: create global class
     public static int gdSeason = 2016;
+    public static int gdNumberOfRounds = 3; //todo определить количество сезонов
 
     //private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;

@@ -33,7 +33,7 @@ public class NewsTabFragment extends Fragment {
         Context context = getActivity().getApplicationContext();
 
         webView = (WebView) view.findViewById(R.id.webview);
-        //webView.loadUrl("http://football.by/news/belarus/");
+        webView.loadUrl("http://football.by/news/belarus/");
         return view;
     }
 

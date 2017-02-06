@@ -163,8 +163,8 @@ public class DataMiner {
     - заносим в базу matches
     - и заодно извлекаем инфо о голах
     --------------------------------------------------*/
-
-    public int populateScheduleWithGoals( int inSeason, int inRound) {
+    /*извлекаем данные использую AsyncTask, то есть в background*/
+    public int populateScheduleWithoutGoalsBG(int inSeason, int inRound) {
         int RetCode = 0;
 
         /*todo: добавить проверку есть ли такие данные в таблице*/
@@ -173,6 +173,127 @@ public class DataMiner {
 
         return RetCode;
     }
+
+    /*извлекаем данные  без AsyncTask, то есть в foreground*/
+    public int populateScheduleWithoutGoalsFG(int inSeason, int inRound)
+    {
+        int RetCode = 0;
+        String title;//Тут храним значение заголовка сайта
+        List<Element> matches;
+        String address; //адрес страницы http://football.by...
+        Element item;
+        Elements tables;
+        /*todo: добавить проверку есть ли такие данные в таблице*/
+
+        Document doc = null;//Здесь хранится будет разобранный html документ
+        Element elem;
+        try
+        {
+            //Считываем страницу http://football.by/stat/belarus/"inSeason"/schedule.html
+            String test = "http://football.by/stat/belarus/" + String.valueOf(inSeason) + "/schedule.html";
+
+            // Информация о каждом туре хранится на след. страницах:
+            // http://football.by/stat/belarus/2016/1/
+            // http://football.by/stat/belarus/"inSeason"/"inRound"/
+            //String test = "http://football.by/stat/belarus/" + params[0].toString() + "/" + params[1].toString();
+
+            doc = Jsoup.connect(test).get();
+        }
+        catch (IOException e)
+        {
+            //Если не получилось считать
+            e.printStackTrace();
+        }
+
+        //Если всё считалось, что вытаскиваем из считанного html документа заголовок
+        if (doc != null)
+            tables = doc.select("table");
+        else {
+            title = "Ошибка";
+            return -1;
+        }
+
+          /* обработка страницы (без информации о голах)
+            http://football.by/stat/belarus/"inSeason"/schedule.html*/
+
+        int i = 0;
+        String roundStr;
+        int currentRound = 1;
+        String currentRoundStr = "0";
+
+        Element tableMatch = tables.get(1); //вторая таблица содержит всю информацию
+        Elements rows = tableMatch.select("tr");
+
+        for (i = 0; i < rows.size(); i++) {
+            Element row = rows.get(i);
+            Elements columns = row.select("td");
+            if (columns.size()==1)
+            {
+                    /*deal with 0. номер тура "sch-title"
+                                1.          "colspan"*/
+                roundStr = columns.get(0).text();
+                if (roundStr.endsWith("тур"))
+                {
+                    String test = roundStr.substring(0, 2);
+                    String strRound = test.trim();
+                    currentRoundStr = strRound;
+                    currentRound = Integer.valueOf(strRound);
+                }
+            }
+            else
+            {
+                // должно быть 8 матчей
+                    /*1. sch-date
+                         sch-time
+                         sch-teams
+                         sch-score
+                         sch-status*/
+                if (currentRound == inRound)
+                {
+                    String date = columns.get(0).text(); //sch-date
+                    String time = columns.get(1).text(); //sch-time
+
+                    date = date + " " + time;
+
+                    //teams
+                    Element teams = columns.get(2);
+                    String homeTeam = teams.child(0).text();
+                    String guestTeam = teams.child(1).text();
+                    //end teams
+
+                    String score = columns.get(3).text(); //2:0
+
+                    String retval[] = score.split(":");
+                    String homeScore = retval[0];
+                    String guestScore = retval[1];
+
+                    //todo: add check for status, if current date > match.date then complete
+                    ContentValues matchTemp = mDB.createMatchValue(
+                            homeTeam,
+                            guestTeam,
+                            homeScore,
+                            guestScore,
+                            String.valueOf(inSeason),
+                            currentRoundStr,
+                            date,
+                            "unknown",
+                            STATUS_COMPLETED
+                    );
+
+                    mDB.addMatch(matchTemp);
+                    matchTemp.clear();
+
+                }
+                else if (currentRound > inRound)
+                {
+                    break;
+                }
+
+            }
+        }
+        return RetCode;
+    }
+
     class GrabMatchesTask extends AsyncTask<String, String, Void>
     {
 

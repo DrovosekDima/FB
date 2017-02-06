@@ -40,8 +40,10 @@ public class FootballDBHelper extends SQLiteOpenHelper
         @Override
         public void onCreate(SQLiteDatabase db)
         {
-            db.execSQL(CREATE_TABLE_TEAMS);
+            //db.execSQL(CREATE_TABLE_TEAMS);
             db.execSQL(CREATE_TABLE_MATCHES);
+            db.execSQL(CREATE_TABLE_PLAYERS);
+            db.execSQL(CREATE_TABLE_GOALS);
         }
 
         @Override
@@ -51,7 +53,9 @@ public class FootballDBHelper extends SQLiteOpenHelper
             {
                 //this.DeleteTables();
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_MATCHES);
-                db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEAMS);
+                //db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEAMS);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYERS);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_GOALS);
                 onCreate(db);
             }
         }
@@ -153,6 +157,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
     }
 
         /*---------------------------------------------
+        возвращает уникальное ID комманды
          ---------------------------------------------*/
         public int getTeamID(String inTeamName) throws SQLException
         {
@@ -169,6 +174,47 @@ public class FootballDBHelper extends SQLiteOpenHelper
             else
                return -1;
         }
+
+        /*-------------------------------------------------------
+            возвращает уникальное ID игрока по имени и фамилии
+        -------------------------------------------------------*/
+    public int getPlayerID(String inFirstName, String inSecondName) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT  " + PLAYERS_P_ID + " FROM " + TABLE_PLAYERS +
+                " WHERE " + PLAYERS_FIRST_NAME + "='" + inFirstName + "'" +
+                " AND " + PLAYERS_SECOND_NAME + "='" + inSecondName + "'";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+        if (mCursor !=null) {
+            mCursor.moveToFirst();
+            return mCursor.getInt(mCursor.getColumnIndex(Schema.PLAYERS_P_ID));
+        }
+        else
+            return -1;
+    }
+
+    /*-------------------------------------------------------
+            возвращает уникальное ID матча по ID домашней комманды
+            и дате
+        -------------------------------------------------------*/
+    public int getMatchID(int inHomeTeamID, String inDateAndTime) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT  " + MATCHES_M_ID + " FROM " + TABLE_MATCHES +
+                " WHERE " + MATCHES_HOME_TEAM_ID + "=" + inHomeTeamID +
+                " AND " + MATCHES_DATEM + "='" + inDateAndTime + "'";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+        if (mCursor !=null) {
+            mCursor.moveToFirst();
+            return mCursor.getInt(mCursor.getColumnIndex(Schema.PLAYERS_P_ID));
+        }
+        else
+            return -1;
+    }
 
     /*--------------------------------------------------------------------------------------
         Возвращает количество матчей в определенном туре данного сезона
@@ -262,13 +308,66 @@ public class FootballDBHelper extends SQLiteOpenHelper
         return teamValue;
     }
 
-    public void addMatch(ContentValues _matchValue)
-    {
-        SQLiteDatabase db = this.getWritableDatabase();
+        public void addMatch(ContentValues _matchValue)
+        {
+            SQLiteDatabase db = this.getWritableDatabase();
 
-        long rowID = db.insert(TABLE_MATCHES, null, _matchValue);
-        if (rowID < 0)
-            Log.v(TRACE, "addMatch FAILED");
-    }
+            long rowID = db.insert(TABLE_MATCHES, null, _matchValue);
+            if (rowID < 0)
+                Log.v(TRACE, "addMatch FAILED");
+        }
 
+        public void addPlayer(ContentValues _playerValue)
+        {
+            SQLiteDatabase db = this.getWritableDatabase();
+            long rowID = db.insert(TABLE_PLAYERS, null, _playerValue);
+            if (rowID < 0)
+                Log.v(TRACE, "addPlayer FAILED");
+        }
+
+        public ContentValues createPlayerValue(  String inFirstName,
+                                                 String inSecond,
+                                                 int    inHeight,
+                                                 int    inWeight,
+                                                 String country,
+                                                 String birth,
+                                                 byte[] inPhoto,
+                                                 int    inTeamId)
+        {
+            ContentValues teamValue = new ContentValues();
+            teamValue.put(PLAYERS_FIRST_NAME, inFirstName);
+            teamValue.put(PLAYERS_SECOND_NAME, inSecond);
+            teamValue.put(PLAYERS_HEIGHT, inHeight);
+            teamValue.put(PLAYERS_WEIGHT, inWeight);
+            teamValue.put(PLAYERS_COUNTRY, country);
+            teamValue.put(PLAYERS_BIRTH, birth);
+            teamValue.put(PLAYERS_PHOTO, inPhoto);
+            teamValue.put(PLAYERS_TEAM_ID, inTeamId);
+
+            return teamValue;
+        }
+
+
+        public void addGoal(ContentValues _goalValue)
+        {
+            SQLiteDatabase db = this.getWritableDatabase();
+            long rowID = db.insert(TABLE_GOALS, null, _goalValue);
+            if (rowID < 0)
+                Log.v(TRACE, "addGoal FAILED");
+        }
+
+        public ContentValues createGoalValue(  String inMinute,
+                                           int    inPlayerId,
+                                           int    inMatchId,
+                                           String type)
+        {
+            ContentValues teamValue = new ContentValues();
+            teamValue.put(GOALS_MINUTE, inMinute);
+            teamValue.put(GOALS_PLAYER_ID, inPlayerId);
+            teamValue.put(GOALS_MATCH_ID, inMatchId);
+            teamValue.put(GOALS_TYPE, type);
+
+
+            return teamValue;
+        }
     }

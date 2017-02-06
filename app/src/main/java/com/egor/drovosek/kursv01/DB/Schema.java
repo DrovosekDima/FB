@@ -7,7 +7,7 @@ package com.egor.drovosek.kursv01.DB;
 public class Schema {
 
     public static final String DATABASE_NAME = "football.db";
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
 
     public static final String TABLE_MATCHES = "matches";
     public static final String TABLE_TEAMS = "teams";
@@ -16,6 +16,7 @@ public class Schema {
     public static final String TABLE_GOALS = "goals";
     public static final String TABLE_VIOLATIONS = "violations";
 
+    /*=================================================================================*/
     /*table matches*/
     public static final String MATCHES_M_ID            = "M_ID";
     public static final String MATCHES_HOME_TEAM_ID    = "home_team_id";
@@ -45,6 +46,8 @@ public class Schema {
     public static final String STATUS_COMPLETED       = "COMPLETED";
     public static final String STATUS_INPROGRESS      = "INPROGRESS";
     public static final String STATUS_FUTURE          = "FUTURE";
+
+    /*=================================================================================*/
     /*таблица teams*/
     public static final String TEAMS_M_ID          = "T_ID";
     public static final String TEAMS_TITLE         = "title";
@@ -69,4 +72,62 @@ public class Schema {
             + TEAMS_DRAW + " datetime, "
             + TEAMS_LOST + " vchar);";
 
+    /*=================================================================================*/
+    /*таблица goals*/
+    public static final String GOALS_G_ID          = "G_ID";
+    public static final String GOALS_MINUTE        = "minute";
+    public static final String GOALS_PLAYER_ID     = "player_id";
+    public static final String GOALS_MATCH_ID      = "match_id";
+    public static final String GOALS_TYPE          = "type";
+
+    // запрос на создание таблицы goals
+    public static final String CREATE_TABLE_GOALS = "create table "
+            + TABLE_GOALS + "( "
+            + GOALS_G_ID + " integer primary key autoincrement, "
+            + GOALS_MINUTE + " time, "
+            + GOALS_PLAYER_ID + " integer, "
+            + GOALS_MATCH_ID + " integer, "
+            + GOALS_TYPE + " vchar);";
+
+    /*CREATE TABLE goals (
+            G_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            minute time,
+            player_id INTEGER,
+            match_id INTEGER,
+            type vchar);*/
+    /*=================================================================================*/
+    public static final String PLAYERS_P_ID         = "P_ID";
+    public static final String PLAYERS_FIRST_NAME   = "first_name";
+    public static final String PLAYERS_SECOND_NAME  = "second_name";
+    public static final String PLAYERS_BIRTH        = "birth";
+    public static final String PLAYERS_COUNTRY      = "country";
+    public static final String PLAYERS_HEIGHT       = "height";
+    public static final String PLAYERS_WEIGHT       = "weight";
+    public static final String PLAYERS_PHOTO        = "photo";
+    public static final String PLAYERS_TEAM_ID      = "team_id";
+
+    // запрос на создание таблицы goals
+    public static final String CREATE_TABLE_PLAYERS = "create table "
+            + TABLE_PLAYERS + "( "
+            + PLAYERS_P_ID + " integer primary key autoincrement, "
+            + PLAYERS_FIRST_NAME + " vchar, "
+            + PLAYERS_SECOND_NAME + " vchar, "
+            + PLAYERS_BIRTH + " date, "
+            + PLAYERS_COUNTRY + " vchar, "
+            + PLAYERS_HEIGHT + " integer, "
+            + PLAYERS_WEIGHT + " integer, "
+            + PLAYERS_PHOTO + " blob, "
+            + PLAYERS_TEAM_ID + " integer);";
+    /*
+    * CREATE TABLE players (
+		P_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+	    first_name varchar,
+    	last_name varchar,
+		birth date,
+    	country varchar,
+	    height INTEGER,
+    	weight INTEGER,
+	    photo blob,
+	    team_id INTEGER);*/
 }
+

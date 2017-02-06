@@ -7,6 +7,7 @@ package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.app.Notification;
 import android.app.ProgressDialog;
@@ -28,12 +29,14 @@ import com.egor.drovosek.kursv01.R;
 
 public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
-    private Context context;
+    private Context mContext;
     private ArrayList<GroupRound> rounds;
+    static public Activity mActivity;
 
-    public RoundMatchExpandListAdapter(Context context, ArrayList<GroupRound> groups) {
-        this.context = context;
+    public RoundMatchExpandListAdapter(Context context, Activity inActivity, ArrayList<GroupRound> groups) {
+        this.mContext = context;
         this.rounds = groups;
+        this.mActivity = inActivity;
     }
 
     @Override
@@ -54,8 +57,8 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
         ChildMatch match = (ChildMatch) getChild(groupPosition, childPosition);
 
         if (convertView == null) {
-            LayoutInflater infalInflater = (LayoutInflater) context
-                    .getSystemService(context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater infalInflater = (LayoutInflater) mContext
+                    .getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
             convertView = infalInflater.inflate(R.layout.match_item, null);
         }
         TextView tvHome = (TextView) convertView.findViewById(R.id.homeTeamView);
@@ -104,8 +107,8 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
                              View convertView, ViewGroup parent) {
         GroupRound group = (GroupRound) getGroup(groupPosition);
         if (convertView == null) {
-            LayoutInflater inf = (LayoutInflater) context
-                    .getSystemService(context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inf = (LayoutInflater) mContext
+                    .getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
             convertView = inf.inflate(R.layout.group_round_item, null);
         }
         TextView tv = (TextView) convertView.findViewById(R.id.group_round_name);
@@ -131,8 +134,30 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
         super.onGroupExpanded(groupPosition);
 
         ArrayList<ChildMatch> match_list = rounds.get(groupPosition).getMatches();
+        /*begin версия с ProgressBar*/
+        if (match_list == null || match_list.isEmpty()) {
 
-        if (match_list == null || match_list.isEmpty())
+            FootballDBHelper db = new FootballDBHelper(mContext);
+            Cursor temp = db.getMatchesSeasonRound(2016, groupPosition+1);
+
+            if (temp.getCount() < 1) {
+                temp.close();
+                new GrabMatchesProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "1");
+            }
+            else
+                new GrabMatchesProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "0");
+        }
+        else
+        {
+            //nothing to do
+        }
+        /*end версия с ProgressBar*/
+
+        /*работает, но отображает список матчей после последующих открытия/закрытия
+        * причина: DataMiner.populateScheduleWithoutGoalsBG() запускает фоновый thread
+         * и выходит. А db.getMatchesSeasonRound() не ждет окончания фоновой задачи DataMinera.
+        * */
+        /*if (match_list == null || match_list.isEmpty())
         {
             FootballDBHelper db = new FootballDBHelper(context);
             Cursor temp = db.getMatchesSeasonRound(2016, groupPosition+1);
@@ -140,7 +165,7 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
             if (temp.getCount() < 1) {
                 temp.close();
                 DataMiner dm = new DataMiner(context);
-                dm.populateScheduleWithGoals(2016, groupPosition + 1);
+                dm.populateScheduleWithoutGoalsBG(2016, groupPosition + 1);
                 temp = db.getMatchesSeasonRound(2016, groupPosition+1);
             }
 
@@ -172,31 +197,25 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
             rounds.get(groupPosition).setMatches(match_list);
             this.notifyDataSetChanged();
-        }
-
-        /*if (children.get(groupPosition).size() > 0)
-            children.remove(groupPosition);*/
+        }*/
     }
-    private class ProgressTask extends AsyncTask<String, Void, Boolean> {
+    private class GrabMatchesProgressTask extends AsyncTask<String, String, Boolean> {
         private ProgressDialog dialog;
-        List<Notification.MessagingStyle.Message> titles;
-        private ListActivity activity;
-        //private List<Message> messages;
-        public ProgressTask(ListActivity activity) {
-            this.activity = activity;
-            context = activity;
-            dialog = new ProgressDialog(context);
+        private Context context;
+        int season;
+        int round;
+
+        public GrabMatchesProgressTask(Context inContext) {
+            context = inContext;
+            dialog = new ProgressDialog(RoundMatchExpandListAdapter.mActivity);
         }
 
 
 
         /** progress dialog to show user that the backup is processing. */
 
-        /** application context. */
-        private Context context;
-
         protected void onPreExecute() {
-            this.dialog.setMessage("Progress start");
+            this.dialog.setMessage("Загружаем список матчей...");
             this.dialog.show();
         }
 
@@ -218,6 +237,48 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
         protected Boolean doInBackground(final String... args) {
             try{
+
+                season = Integer.valueOf(args[0].toString());
+                round =  Integer.valueOf(args[1].toString());
+                boolean grab = args[2].equals("1");
+
+                FootballDBHelper db = new FootballDBHelper(context);
+                if (grab) {
+                    DataMiner dm = new DataMiner(mContext);
+                    dm.populateScheduleWithoutGoalsFG(season, round);
+                }
+                Cursor temp = db.getMatchesSeasonRound(season, round);
+
+                ArrayList<ChildMatch> match_list;
+
+                temp.moveToFirst();
+
+                match_list = new ArrayList<ChildMatch>();
+
+                for (int i = 0; i < temp.getCount(); i++)
+                {
+                    String homeTeam = temp.getString(temp.getColumnIndex("home_title"));
+                    String guestTeam = temp.getString(temp.getColumnIndex("guest_title"));
+                    int round = temp.getInt(temp.getColumnIndex("round"));
+                    int scoreHome = temp.getInt(temp.getColumnIndex("score_home"));
+                    int scoreGuest = temp.getInt(temp.getColumnIndex("score_guest"));
+                    String dateAndTime = temp.getString(temp.getColumnIndex("datem"));
+
+                    ChildMatch item = new ChildMatch();
+                    item.sethomeName(homeTeam);
+                    item.setHomeScore(String.valueOf(scoreHome));
+                    item.setGuestName(guestTeam);
+                    item.setGuestScore(String.valueOf(scoreGuest));
+                    item.setDateAndTime(dateAndTime);
+
+                    match_list.add(item);
+
+                    temp.moveToNext();
+                }
+
+                temp.close();
+
+                rounds.get(round-1).setMatches(match_list);
 
                 return true;
             } catch (Exception e){

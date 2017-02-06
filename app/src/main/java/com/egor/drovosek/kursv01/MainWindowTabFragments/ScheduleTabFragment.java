@@ -23,6 +23,7 @@ import com.egor.drovosek.kursv01.R;
 
 import java.util.ArrayList;
 
+import static com.egor.drovosek.kursv01.MainActivity.gdNumberOfRounds;
 import static com.egor.drovosek.kursv01.MainActivity.gdSeason;
 
 
@@ -46,11 +47,11 @@ public class ScheduleTabFragment extends Fragment {
         ExpandList = (ExpandableListView)view.findViewById(R.id.exp_round_list);
 
         ExpListItems = SetInitialRounds();
-        ExpAdapter = new RoundMatchExpandListAdapter(getActivity().getApplicationContext(), ExpListItems);
+        ExpAdapter = new RoundMatchExpandListAdapter(getActivity().getApplicationContext(), getActivity(), ExpListItems);
         ExpandList.setAdapter(ExpAdapter);
 
         //todo развернуть матчи определенного тура (последнего или первого)
-        ExpandList.expandGroup(0);
+        //ExpandList.expandGroup(0);
 
         /*todo: временно. очистка teams table*/
         //FootballDBHelper db = new FootballDBHelper(getActivity().getApplicationContext());
@@ -60,7 +61,7 @@ public class ScheduleTabFragment extends Fragment {
         //DataMiner dm = new DataMiner(getActivity().getApplicationContext());
         //dm.populateTeam(2016);
 
-        //dm.populateScheduleWithGoals(2016, 2);
+        //dm.populateScheduleWithoutGoalsBG(2016, 2);
         /*Cursor temp = db.getMatchesSeason(2016);
 
         temp.moveToFirst();
@@ -91,71 +92,15 @@ public class ScheduleTabFragment extends Fragment {
         //todo: определить количество туров на данный момент,
         // если прошлый год, то генерируем все туры
         // текущий год - последний доступный тур на сегодняшний день
+        // gdNumberOfRounds - общее количество туров в году
 
-        GroupRound gr = new GroupRound();
-        //ArrayList<ChildMatch> match_list;
+        GroupRound gr;
 
-        gr.setName("Тур 1");
-        listRounds.add(gr);
-
-/*        {
-            gr.setName("Тур 1");
-
-            match_list = new ArrayList<ChildMatch>();
-
-            Cursor temp = db.getMatchesSeasonRound(2016, 1);
-
-            temp.moveToFirst();
-
-            for (int i = 0; i < temp.getCount(); i++) {
-                String homeTeam = temp.getString(temp.getColumnIndex("home_title"));
-                String guestTeam = temp.getString(temp.getColumnIndex("guest_title"));
-                int round = temp.getInt(temp.getColumnIndex("round"));
-                int scoreHome = temp.getInt(temp.getColumnIndex("score_home"));
-                int scoreGuest = temp.getInt(temp.getColumnIndex("score_guest"));
-                String dateAndTime = temp.getString(temp.getColumnIndex("datem"));
-
-                ChildMatch item = new ChildMatch();
-                item.sethomeName(homeTeam);
-                item.setHomeScore(String.valueOf(scoreHome));
-                item.setGuestName(guestTeam);
-                item.setGuestScore(String.valueOf(scoreGuest));
-                item.setDateAndTime(dateAndTime);
-
-                match_list.add(item);
-
-                temp.moveToNext();
-            }
-
-            temp.close();
-
-            gr.setMatches(match_list);
+        for (int i = 1; i < (gdNumberOfRounds + 1); i++) {
+            gr = new GroupRound();
+            gr.setName("Тур " + String.valueOf(i));
             listRounds.add(gr);
-        }*/
-
-        gr = new GroupRound();
-        gr.setName("Тур 2");
-        listRounds.add(gr);
-
-        gr = new GroupRound();
-        gr.setName("Тур 3");
-        listRounds.add(gr);
-
-        gr = new GroupRound();
-        gr.setName("Тур 4");
-        listRounds.add(gr);
-
-        gr = new GroupRound();
-        gr.setName("Тур 5");
-        listRounds.add(gr);
-
-        gr = new GroupRound();
-        gr.setName("Тур 6");
-        listRounds.add(gr);
-
-        gr = new GroupRound();
-        gr.setName("Тур 7");
-        listRounds.add(gr);
+        }
 
         return listRounds;
     }
