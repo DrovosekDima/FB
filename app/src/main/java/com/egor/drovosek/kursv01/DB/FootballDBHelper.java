@@ -156,6 +156,20 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
     }
 
+    public Cursor getBestPlayers(int season) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+            /*Select */
+
+        String selectQuery = "select * from goals";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        return mCursor;
+
+    }
+
         /*---------------------------------------------
         возвращает уникальное ID комманды
          ---------------------------------------------*/
@@ -189,7 +203,12 @@ public class FootballDBHelper extends SQLiteOpenHelper
         Cursor mCursor = db.rawQuery(selectQuery, null);
         if (mCursor !=null) {
             mCursor.moveToFirst();
-            return mCursor.getInt(mCursor.getColumnIndex(Schema.PLAYERS_P_ID));
+            if(mCursor.getCount()>0) {
+                int colIndex = mCursor.getColumnIndex(PLAYERS_P_ID);
+                return mCursor.getInt(colIndex);
+            }
+            else
+                return -1;
         }
         else
             return -1;
@@ -210,7 +229,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
         Cursor mCursor = db.rawQuery(selectQuery, null);
         if (mCursor !=null) {
             mCursor.moveToFirst();
-            return mCursor.getInt(mCursor.getColumnIndex(Schema.PLAYERS_P_ID));
+            return mCursor.getInt(mCursor.getColumnIndex(Schema.MATCHES_M_ID));
         }
         else
             return -1;
@@ -229,7 +248,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
             String selectQuery = "SELECT COUNT(round) as numberofrounds FROM matches WHERE season="+String.valueOf(season)+" and round="+String.valueOf(round)+";";
 
             Cursor mCursor = db.rawQuery(selectQuery, null);
-            if (mCursor !=null) {
+            if (mCursor !=null&& mCursor.getCount()>1) {
                 mCursor.moveToFirst();
                 return mCursor.getInt(mCursor.getColumnIndex("numberofrounds"));
             }

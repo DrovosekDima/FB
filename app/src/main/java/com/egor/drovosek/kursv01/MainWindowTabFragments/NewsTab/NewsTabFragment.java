@@ -1,4 +1,4 @@
-package com.egor.drovosek.kursv01.MainWindowTabFragments;
+package com.egor.drovosek.kursv01.MainWindowTabFragments.NewsTab;
 
 /**
  * Created by Drovosek on 27/01/2017.

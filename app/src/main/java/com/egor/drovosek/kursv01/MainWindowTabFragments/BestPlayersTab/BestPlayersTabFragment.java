@@ -1,4 +1,4 @@
-package com.egor.drovosek.kursv01.MainWindowTabFragments;
+package com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab;
 
 /**
  * Created by Drovosek on 27/01/2017.
@@ -7,56 +7,47 @@ package com.egor.drovosek.kursv01.MainWindowTabFragments;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.egor.drovosek.kursv01.DB.DataMiner;
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.DB.Schema;
 import com.egor.drovosek.kursv01.R;
 
-import java.util.ArrayList;
-import java.util.List;
+import static com.egor.drovosek.kursv01.MainActivity.gdSeason;
 
 
-public class TableTabFragment extends Fragment {
+public class BestPlayersTabFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.tab_frag_table, container, false);
-
+        View view = inflater.inflate(R.layout.tab_frag_bestplayers, container, false);
         Context context = getActivity().getApplicationContext();
 
-        TableLayout table = (TableLayout) view.findViewById(R.id.statsTable);
+        TableLayout table = (TableLayout) view.findViewById(R.id.bestPlayersTable);
         View row;
-        TextView columnRank;
+        TextView columnFIO;
         ImageView columnLogo;
         TextView columnTeamName;
+        TextView columnGoals;
+        TextView columnRank;
 
         FootballDBHelper mDB = new FootballDBHelper(context);
-        Cursor curs = mDB.getAllTeams(2016);
+
+        Cursor curs = mDB.getBestPlayers(gdSeason);
 
 
         if (curs != null && curs.getCount()>0)
@@ -67,17 +58,20 @@ public class TableTabFragment extends Fragment {
             curs.moveToFirst();
             for(int i =0; i< sizeCurs; i++)
             {
-                String tmpWName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
+                String tmpWName = curs.getString(curs.getColumnIndex("player_id"));
 
-                row = getActivity().getLayoutInflater().inflate(R.layout.table_stats_row, null);
+                row = getActivity().getLayoutInflater().inflate(R.layout.table_bestplayers_row, null);
 
-                columnRank = (TextView) row.findViewById(R.id.colRank);
-                columnLogo = (ImageView) row.findViewById(R.id.colLogo);
-                columnTeamName = (TextView) row.findViewById(R.id.colTeamName);
+                columnFIO = (TextView) row.findViewById(R.id.colFIOBP);
+                columnLogo = (ImageView) row.findViewById(R.id.colLogoBP);
+                columnTeamName = (TextView) row.findViewById(R.id.colTeamNameBP);
+                columnRank = (TextView) row.findViewById(R.id.colRankBP);
+                columnGoals = (TextView) row.findViewById(R.id.colGoalsBP);
 
                 columnRank.setText(String.valueOf(i+1));
                 columnTeamName.setText(tmpWName);
-
+                columnGoals.setText("0");
+                columnFIO.setText("Drovosek #" + String.valueOf(i+1));
                 if (odd)
                 {
                     columnLogo.setImageResource(R.drawable.dinamominsk);
@@ -94,20 +88,6 @@ public class TableTabFragment extends Fragment {
                 curs.moveToNext();
             }
         }
-
-
-
-
-        /*row = getActivity().getLayoutInflater().inflate(R.layout.table_stats_row, null);
-
-        columnRank = (TextView) row.findViewById(R.id.colRank);
-        columnLogo = (ImageView) row.findViewById(R.id.colLogo);
-        columnTeamName = (TextView) row.findViewById(R.id.colTeamName);
-
-        columnRank.setText("2");
-        columnLogo.setImageResource(R.drawable.bate);
-        columnTeamName.setText("БАТЭ");
-        table.addView(row);*/
 
         return view;
     }

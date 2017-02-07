@@ -491,7 +491,7 @@ public class DataMiner {
             //Считываем страницу http://football.by/stat/belarus/"inSeason"/"inRound"/
             address = "http://football.by/stat/belarus/" +
                        String.valueOf(inSeason) + "/" +
-                       String.valueOf(inSeason) + "/";
+                       String.valueOf(inRound) + "/";
 
             doc = Jsoup.connect(address).get();
         }
@@ -548,14 +548,27 @@ public class DataMiner {
         String onSite = "";
         String homeGoals = "";
         String guestGoals = "";
-        String homePlayer;
-        String guestPlayer;
+        List<String> homeGoalsPlayers = new LinkedList<String>();
+        List<String> guestGoalsPlayers = new LinkedList<String>();
+        String home;
+        String guest;
+        int matchID;
+        int playerID;
+        int homeTeamID;
+        int guestTeamID;
 
         while (i < teams.size())
         {
+            String homeAndGuestgoals="";
 
-            String home = teams.get(i).select(".md-left").text();
-            String guest = teams.get(i).select(".md-right").text();
+            home = teams.get(i).select(".md-left").text();
+            guest = teams.get(i).select(".md-right").text();
+            homeAndGuestgoals = teams.get(i).select(".md-center").text();
+
+            String goals[] = homeAndGuestgoals.split(":");
+            //todo: добавить проверку на счет, если матч не начался то будет crash?
+            homeGoals = goals[0];
+            guestGoals = goals[1];
 
             item = teams.get(i);
 
@@ -566,99 +579,129 @@ public class DataMiner {
                 dateTime = innerElem.get(1).select(".md-wideleft").text();
                 onSite = innerElem.get(1).select(".md-wideright").text();
 
-                homePlayer = innerElem.get(2).select(".md-wideleft").text();
-                guestPlayer = innerElem.get(2).select(".md-wideright").text();
+                Elements homeGoalsList = innerElem.get(2).select(".md-wideleft");
 
+                Elements playersName = homeGoalsList.get(0).children();
+
+                homeGoalsPlayers.clear();
+                for(int cPl = 0; cPl < playersName.size(); cPl++)
+                    homeGoalsPlayers.add(playersName.get(cPl).text());
+
+                Elements guestGoalsList = innerElem.get(2).select(".md-wideright");
+
+                playersName = guestGoalsList.get(0).children();
+
+                guestGoalsPlayers.clear();
+                for(int cPl = 0; cPl < playersName.size(); cPl++)
+                    guestGoalsPlayers.add(playersName.get(cPl).text()); // выглядит как: "4' Александр Юшин"
+                                                                        // надо выделить время, firstName and secondName
 
             }
 
-            title += dateTime + " ";
-            title += onSite + "\n";
-            title += home + "\t\t" + score + "\t\t" + guest + "\n\n";
+            /*Step 1: добавить матч в таблицу matches*/
+            {
+                //todo: add check for status, if current date > match.date then complete
+                ContentValues matchTemp = mDB.createMatchValue(
+                        home,
+                        guest,
+                        homeGoals,
+                        guestGoals,
+                        String.valueOf(inSeason),
+                        String.valueOf(inRound),
+                        dateTime,
+                        onSite,
+                        STATUS_COMPLETED);
 
-            //matchResults[i] = new FMatchResult(home, guest, score, dateTime, homeGoals, guestGoals);
-            FMatchResult match = new FMatchResult(home, guest, score, dateTime, homeGoals, guestGoals);
-            adapter.add(match);
+                mDB.addMatch(matchTemp);
+                // получить матч ID, который будет использоваться при добавлении гола в таблицу
+                homeTeamID = mDB.getTeamID(home);
+                guestTeamID = mDB.getTeamID(guest);
+                matchID = mDB.getMatchID(homeTeamID, dateTime);
+
+                matchTemp.clear();
+            }
+            /*Step 2: добавить голы в таблицу goals и игроков в таблицу players*/
+            {
+                // homeGoalsPlayers  [0] "4' Александр Юшин"
+                //                   [1] "36' Евгений Шикавка" (п)
+
+                // guestGoalsPlayers [0] "Дмитрий Н. Игнатенко (щ) 90+2'"
+                //                   [1] "36' Евгений Шикавка"
+
+                for (int j = 0; j < homeGoalsPlayers.size(); j++) {
+                    String chunks[] = homeGoalsPlayers.get(j).split(" ");
+                    String timeG = chunks[0];
+                    String firstName = chunks[1];
+                    String secondName = chunks[2];
+
+                    if (chunks.length > 3) {
+                        // проверить на (ш) - штрафной
+                        //               (п) - пенальти
+                        if (chunks[3].equals("(ш)") || chunks[3].equals("(п)"))
+                        {
+                            //skip
+                        }
+                        else
+                           secondName = secondName + " " + chunks[3];
+                    }
+
+
+                    playerID = mDB.getPlayerID(firstName, secondName);
+
+                    if (playerID < 0 ){
+                        // такого игрока не существует и его надо добавить в таблицу
+                        ContentValues player = mDB.createPlayerValue(firstName, secondName, 0, 0, null, null, null, homeTeamID);
+
+                        mDB.addPlayer(player);
+
+                        playerID = mDB.getPlayerID(firstName, secondName);
+                    }
+
+                    ContentValues goal = mDB.createGoalValue(timeG, playerID, matchID, "game");
+
+                    mDB.addGoal(goal);
+                }
+
+                for (int j = 0; j < guestGoalsPlayers.size(); j++) {
+
+                    String chunks[] = guestGoalsPlayers.get(j).split(" ");
+                    String timeG = chunks[0];
+                    String firstName = chunks[1];
+                    String secondName = chunks[2];
+
+                    if (chunks.length > 3) {
+                        // проверить на (ш) - штрафной
+                        //               (п) - пенальти
+                        if (chunks[3].equals("(ш)") || chunks[3].equals("(п)"))
+                        {
+                            //skip
+                        }
+                        else
+                            secondName = secondName + " " + chunks[3];
+                    }
+
+                    playerID = mDB.getPlayerID(firstName, secondName);
+
+                    if (playerID < 0 ){
+                        // такого игрока не существует и его надо добавить в таблицу
+                        ContentValues player = mDB.createPlayerValue(firstName,
+                                                                    secondName, 0, 0, null, null, null,
+                                                                    guestTeamID);
+
+                        mDB.addPlayer(player);
+
+                        playerID = mDB.getPlayerID(firstName, secondName);
+                    }
+
+                    ContentValues goal = mDB.createGoalValue(timeG, playerID, matchID, "game");
+
+                    mDB.addGoal(goal);
+                }
+            }
 
             i++;
         }
 
-
-        int i = 0;
-        String roundStr;
-        int currentRound = 1;
-        String currentRoundStr = "0";
-
-        Element tableMatch = tables.get(1); //вторая таблица содержит всю информацию
-        Elements rows = tableMatch.select("tr");
-
-        for (i = 0; i < rows.size(); i++) {
-            Element row = rows.get(i);
-            Elements columns = row.select("td");
-            if (columns.size()==1)
-            {
-                    /*deal with 0. номер тура "sch-title"
-                                1.          "colspan"*/
-                roundStr = columns.get(0).text();
-                if (roundStr.endsWith("тур"))
-                {
-                    String test = roundStr.substring(0, 2);
-                    String strRound = test.trim();
-                    currentRoundStr = strRound;
-                    currentRound = Integer.valueOf(strRound);
-                }
-            }
-            else
-            {
-                // должно быть 8 матчей
-                    /*1. sch-date
-                         sch-time
-                         sch-teams
-                         sch-score
-                         sch-status*/
-                if (currentRound == inRound)
-                {
-                    String date = columns.get(0).text(); //sch-date
-                    String time = columns.get(1).text(); //sch-time
-
-                    date = date + " " + time;
-
-                    //teams
-                    Element teams = columns.get(2);
-                    String homeTeam = teams.child(0).text();
-                    String guestTeam = teams.child(1).text();
-                    //end teams
-
-                    String score = columns.get(3).text(); //2:0
-
-                    String retval[] = score.split(":");
-                    String homeScore = retval[0];
-                    String guestScore = retval[1];
-
-                    //todo: add check for status, if current date > match.date then complete
-                    ContentValues matchTemp = mDB.createMatchValue(
-                            homeTeam,
-                            guestTeam,
-                            homeScore,
-                            guestScore,
-                            String.valueOf(inSeason),
-                            currentRoundStr,
-                            date,
-                            "unknown",
-                            STATUS_COMPLETED
-                    );
-
-                    mDB.addMatch(matchTemp);
-                    matchTemp.clear();
-
-                }
-                else if (currentRound > inRound)
-                {
-                    break;
-                }
-
-            }
-        }
         return RetCode;
     }
 

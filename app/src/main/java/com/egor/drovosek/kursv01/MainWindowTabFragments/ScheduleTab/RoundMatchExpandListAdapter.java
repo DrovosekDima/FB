@@ -142,10 +142,10 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
             if (temp.getCount() < 1) {
                 temp.close();
-                new GrabMatchesProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "1");
+                new GrabMatchesAndGoalsProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "1");
             }
             else
-                new GrabMatchesProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "0");
+                new GrabMatchesAndGoalsProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "0");
         }
         else
         {
@@ -246,6 +246,97 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
                 if (grab) {
                     DataMiner dm = new DataMiner(mContext);
                     dm.populateScheduleWithoutGoalsFG(season, round);
+                }
+                Cursor temp = db.getMatchesSeasonRound(season, round);
+
+                ArrayList<ChildMatch> match_list;
+
+                temp.moveToFirst();
+
+                match_list = new ArrayList<ChildMatch>();
+
+                for (int i = 0; i < temp.getCount(); i++)
+                {
+                    String homeTeam = temp.getString(temp.getColumnIndex("home_title"));
+                    String guestTeam = temp.getString(temp.getColumnIndex("guest_title"));
+                    int round = temp.getInt(temp.getColumnIndex("round"));
+                    int scoreHome = temp.getInt(temp.getColumnIndex("score_home"));
+                    int scoreGuest = temp.getInt(temp.getColumnIndex("score_guest"));
+                    String dateAndTime = temp.getString(temp.getColumnIndex("datem"));
+
+                    ChildMatch item = new ChildMatch();
+                    item.sethomeName(homeTeam);
+                    item.setHomeScore(String.valueOf(scoreHome));
+                    item.setGuestName(guestTeam);
+                    item.setGuestScore(String.valueOf(scoreGuest));
+                    item.setDateAndTime(dateAndTime);
+
+                    match_list.add(item);
+
+                    temp.moveToNext();
+                }
+
+                temp.close();
+
+                rounds.get(round-1).setMatches(match_list);
+
+                return true;
+            } catch (Exception e){
+                Log.e("tag", "error", e);
+                return false;
+            }
+        }
+
+
+    }
+
+    private class GrabMatchesAndGoalsProgressTask extends AsyncTask<String, String, Boolean> {
+        private ProgressDialog dialog;
+        private Context context;
+        int season;
+        int round;
+
+        public GrabMatchesAndGoalsProgressTask(Context inContext) {
+            context = inContext;
+            dialog = new ProgressDialog(RoundMatchExpandListAdapter.mActivity);
+        }
+
+
+
+        /** progress dialog to show user that the backup is processing. */
+
+        protected void onPreExecute() {
+            this.dialog.setMessage("Загружаем список матчей...");
+            this.dialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+
+            notifyDataSetChanged();
+
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+
+            if (success) {
+                Toast.makeText(context, "OK", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, "Error", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        protected Boolean doInBackground(final String... args) {
+            try{
+
+                season = Integer.valueOf(args[0].toString());
+                round =  Integer.valueOf(args[1].toString());
+                boolean grab = args[2].equals("1");
+
+                FootballDBHelper db = new FootballDBHelper(context);
+                if (grab) {
+                    DataMiner dm = new DataMiner(mContext);
+                    dm.populateScheduleWithGoalsAndPlayersFG(season, round);
                 }
                 Cursor temp = db.getMatchesSeasonRound(season, round);
 
