@@ -636,8 +636,9 @@ public class DataMiner {
 
                     if (chunks.length > 3) {
                         // проверить на (ш) - штрафной
-                        //               (п) - пенальти
-                        if (chunks[3].equals("(ш)") || chunks[3].equals("(п)"))
+                        //              (п) - пенальти
+                        //              (аг) - автогол
+                        if (chunks[3].equals("(ш)") || chunks[3].equals("(п)") || chunks[3].equals("(аг)"))
                         {
                             //skip
                         }

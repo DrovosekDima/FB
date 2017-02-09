@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity
 
     //todo: create global class
     public static int gdSeason = 2016;
-    public static int gdNumberOfRounds = 3; //todo определить количество сезонов
+    public static int gdNumberOfRounds = 5; //todo определить количество сезонов
 
     //private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;

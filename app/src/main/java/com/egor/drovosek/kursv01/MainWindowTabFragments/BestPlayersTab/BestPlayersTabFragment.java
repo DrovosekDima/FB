@@ -54,12 +54,11 @@ public class BestPlayersTabFragment extends Fragment {
         {
             int sizeCurs = curs.getCount();
             boolean odd = true;
+            String data;
 
             curs.moveToFirst();
             for(int i =0; i< sizeCurs; i++)
             {
-                String tmpWName = curs.getString(curs.getColumnIndex("player_id"));
-
                 row = getActivity().getLayoutInflater().inflate(R.layout.table_bestplayers_row, null);
 
                 columnFIO = (TextView) row.findViewById(R.id.colFIOBP);
@@ -68,10 +67,20 @@ public class BestPlayersTabFragment extends Fragment {
                 columnRank = (TextView) row.findViewById(R.id.colRankBP);
                 columnGoals = (TextView) row.findViewById(R.id.colGoalsBP);
 
-                columnRank.setText(String.valueOf(i+1));
-                columnTeamName.setText(tmpWName);
-                columnGoals.setText("0");
-                columnFIO.setText("Drovosek #" + String.valueOf(i+1));
+                data = String.valueOf(i+1);
+                columnRank.setText(data);
+
+                data = curs.getString(curs.getColumnIndex("teamName"));
+                columnTeamName.setText(data);
+
+
+                data = curs.getString(curs.getColumnIndex("first_name")) + " " +
+                        curs.getString(curs.getColumnIndex("second_name"));
+                columnFIO.setText(data);
+
+                data = String.valueOf(curs.getInt(curs.getColumnIndex("numberOfGoals")));
+                columnGoals.setText(data);
+
                 if (odd)
                 {
                     columnLogo.setImageResource(R.drawable.dinamominsk);
@@ -90,5 +99,10 @@ public class BestPlayersTabFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 }
