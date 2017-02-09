@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.jsoup.Jsoup;
@@ -12,7 +15,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Time;
 import java.util.*;
 
@@ -25,6 +32,7 @@ import static com.egor.drovosek.kursv01.DB.Schema.STATUS_COMPLETED;
 public class DataMiner {
     public FootballDBHelper mDB;
     Context cont;
+    String TAG ="DataMiner()";
 
     public DataMiner(Context inContext)
     {
@@ -59,6 +67,7 @@ public class DataMiner {
         String address; //адрес страницы http://football.by...
         Element item;
         int inSeason;
+        Elements tables;
 
         @Override
         protected void onPreExecute()
@@ -76,7 +85,8 @@ public class DataMiner {
             try
             {
                 //Считываем страницу http://football.by/stat/belarus/"inSeason"/teams/
-                String test = "http://football.by/stat/belarus/" + params[0].toString() + "/teams";
+                //String test = "http://football.by/stat/belarus/" + params[0].toString() + "/teams";
+                String test = "http://fbdata.ucoz.net/";
                 doc = Jsoup.connect(test).get();
             }
             catch (IOException e)
@@ -87,9 +97,37 @@ public class DataMiner {
 
             //Если всё считалось, что вытаскиваем из считанного html документа заголовок
             if (doc != null)
-                teams = doc.select(".st-teams-team");
+                //teams = doc.select(".st-teams-team");
+                tables = doc.select("table");
             else
                 title = "Ошибка";
+
+            /*вариант для http://fbdata.ucoz.net*/
+            //todo обработка номера сезона
+
+            Element tblOneSeason = tables.get(0); //первая таблица содержит комманды за 2016
+            Elements rows = tblOneSeason.select("tr");
+
+            for (int i = 0; i < rows.size(); i++) {
+                Element row = rows.get(i);
+                Elements columns = row.select("td");
+                String teamName = columns.get(0).text();
+                String city = columns.get(1).text();
+                Element image = columns.get(2).select("img").first();
+                String imgUrl = image.absUrl("src");
+
+                Bitmap teamLogo = getImageBitmap(imgUrl);
+
+                ContentValues teamTemp = mDB.createTeamValue(
+                        teamName,
+                        city,
+                        teamLogo,
+                        "",
+                        inSeason);
+
+                mDB.addTeam(teamTemp);
+            }
+            //end processing fbdata.ucoz.net
 
             return null;
         }
@@ -99,6 +137,7 @@ public class DataMiner {
         {
             super.onPostExecute(result);
 
+            /* рабочий вариант для http://football.by
             int i = 0;
             title = "";
 
@@ -116,24 +155,32 @@ public class DataMiner {
                 mDB.addTeam(teamTemp);
                 teamTemp.clear();
 
-            /*item = teams.get(i);
-
-            if (item != null)
-            {
-                List<Element> elem = item.select(".matchdesc");
-
-                dateTime = elem.get(1).select(".md-wideleft").text();
-                onSite = elem.get(1).select(".md-wideright").text();
-
-                homeGoals = elem.get(2).select(".md-wideleft").text();
-                guestGoals = elem.get(2).select(".md-wideright").text();
-            }*/
-
                 i++;
-            }
+            }*/
         }
     }
 
+    private Bitmap getImageBitmap(String url) {
+        Bitmap bm = null;
+        try {
+            // See what we are getting
+            Log.i(TAG, "" + url);
+
+            URL aURL = new URL(url);
+            URLConnection conn = aURL.openConnection();
+            conn.connect();
+
+            InputStream is = conn.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+            bm = BitmapFactory.decodeStream(bis);
+
+            bis.close();
+            is.close();
+        } catch (IOException e) {
+            Log.e(TAG, "Error getting bitmap", e);
+        }
+        return bm;
+    }
     /*-------------------------------------------------
     - Идем по адресу
 1.       http://football.by/stat/belarus/2016/schedule.html

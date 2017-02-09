@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import static android.support.v7.appcompat.R.id.image;
 import static com.egor.drovosek.kursv01.DB.Schema.*;
 
 /**
@@ -40,7 +41,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
         @Override
         public void onCreate(SQLiteDatabase db)
         {
-            //db.execSQL(CREATE_TABLE_TEAMS);
+            db.execSQL(CREATE_TABLE_TEAMS);
             db.execSQL(CREATE_TABLE_MATCHES);
             db.execSQL(CREATE_TABLE_PLAYERS);
             db.execSQL(CREATE_TABLE_GOALS);
@@ -53,7 +54,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
             {
                 //this.DeleteTables();
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_MATCHES);
-                //db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEAMS);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEAMS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYERS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_GOALS);
                 onCreate(db);
@@ -95,9 +96,8 @@ public class FootballDBHelper extends SQLiteOpenHelper
             String selectQuery = "SELECT  * FROM " + TABLE_TEAMS +
                                  " WHERE " + TEAMS_SEASON + "=" + String.valueOf(season);
 
-            Cursor mCursor = db.rawQuery(selectQuery, null);
+            return db.rawQuery(selectQuery, null);
 
-            return mCursor;
         }
 
           /*---------------------------------------------
@@ -281,14 +281,20 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
         public ContentValues createTeamValue(  String inTitle,
                                             String inCity,
-                                            byte[] inLogo,
+                                            Bitmap inLogo,
                                             String inPath,
                                             int inSeason )
         {
             ContentValues teamValue = new ContentValues();
             teamValue.put(TEAMS_TITLE, inTitle);
             teamValue.put(TEAMS_CITY, inCity);
-            teamValue.put(TEAMS_EMBLEM, inLogo);
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            inLogo.compress(Bitmap.CompressFormat.PNG, 100, out);
+            byte[] bufferWithLogo =out.toByteArray();
+
+            teamValue.put(TEAMS_EMBLEM, bufferWithLogo);
+
             teamValue.put(TEAMS_PATH, inPath);
             teamValue.put(TEAMS_SEASON, inSeason);
             teamValue.put(TEAMS_WIN, 0);

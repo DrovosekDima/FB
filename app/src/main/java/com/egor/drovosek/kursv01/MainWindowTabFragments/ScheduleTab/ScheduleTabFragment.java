@@ -58,8 +58,8 @@ public class ScheduleTabFragment extends Fragment {
         //db.ClearTable(Schema.TABLE_TEAMS);
 
         /*todo: найти лучшее место для инициализации*/
-        //DataMiner dm = new DataMiner(getActivity().getApplicationContext());
-        //dm.populateTeam(2016);
+//        DataMiner dm = new DataMiner(getActivity().getApplicationContext());
+//        dm.populateTeam(2016);
 
         //dm.populateScheduleWithoutGoalsBG(2016, 2);
         /*Cursor temp = db.getMatchesSeason(2016);

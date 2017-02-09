@@ -7,7 +7,7 @@ package com.egor.drovosek.kursv01.DB;
 public class Schema {
 
     public static final String DATABASE_NAME = "football.db";
-    public static final int DATABASE_VERSION = 13;
+    public static final int DATABASE_VERSION = 15;
 
     public static final String TABLE_MATCHES = "matches";
     public static final String TABLE_TEAMS = "teams";
