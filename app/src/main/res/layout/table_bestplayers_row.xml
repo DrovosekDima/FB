@@ -22,13 +22,6 @@
             android:layout_weight="7"
             android:id="@+id/colFIOBP" />
 
-        <TextView
-            android:text="Комманда"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:id="@+id/colTeamNameBP" />
-
         <ImageView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -39,11 +32,19 @@
             android:cropToPadding="false" />
 
         <TextView
+            android:text="Комманда"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:id="@+id/colTeamNameBP" />
+
+        <TextView
             android:text="0"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:id="@+id/colGoalsBP" />
+            android:id="@+id/colGoalsBP"
+            android:textAlignment="center" />
 
     </TableRow>
 </LinearLayout>

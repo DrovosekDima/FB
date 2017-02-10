@@ -24,4 +24,12 @@ public class Team {
         emblem = inEmblem;
         season = inSeason;
     }
+    public Bitmap getEmblem()
+    {
+        return this.emblem;
+    }
+
+    public String getTitle(){
+        return this.title;
+    }
 }

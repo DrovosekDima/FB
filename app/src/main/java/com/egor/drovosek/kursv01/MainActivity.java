@@ -1,11 +1,14 @@
 package com.egor.drovosek.kursv01;
 
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,7 +28,9 @@ import com.egor.drovosek.kursv01.MainWindowTabFragments.NewsTab.NewsTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.TableStats.TableTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ViewPagerAdapter;
+import com.egor.drovosek.kursv01.Misc.Team;
 
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +50,7 @@ public class MainActivity extends AppCompatActivity
     ExpandableListAdapter mMenuAdapter;
     ExpandableListView expandableList;
     List<String> listDataHeader;
-    HashMap<String, List<String>> listDataChild;
+    HashMap<String, List<Team>> listDataChild;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,13 +87,13 @@ public class MainActivity extends AppCompatActivity
 
         // setting list adapter
         expandableList.setAdapter(mMenuAdapter);
-        expandableList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        /*expandableList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView,
                                         View view,
                                         int groupPosition,
                                         int childPosition, long id) {
-                //Log.d("DEBUG", "submenu item clicked");
+                Log.d("DEBUG", "submenu item clicked");
                 Toast.makeText(MainActivity.this,
                         "Header: "+String.valueOf(groupPosition) +
                                 "\nItem: "+ String.valueOf(childPosition), Toast.LENGTH_SHORT)
@@ -106,10 +111,10 @@ public class MainActivity extends AppCompatActivity
         expandableList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
-                //Log.d("DEBUG", "heading clicked");
+                Log.d("DEBUG", "heading clicked");
                 return false;
             }
-        });
+        });*/
         // добавление списка комманд
         /*Menu navMenu = navigationView.getMenu();
         SubMenu subMenu = navMenu.getItem(0).getSubMenu();
@@ -194,7 +199,7 @@ public class MainActivity extends AppCompatActivity
 
     private void prepareListData() {
         listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
+        listDataChild = new HashMap<String, List<Team>>();
 
         // Adding data header
         listDataHeader.add(getString(R.string.nav_teams));
@@ -204,6 +209,44 @@ public class MainActivity extends AppCompatActivity
 
         // Adding child data
         // получаем список комманд из db table TEAMS
+        FootballDBHelper mDB = new FootballDBHelper(getApplicationContext());
+        Cursor curs = mDB.getAllTeams(2016);
+
+        List<Team> teamsList = new ArrayList<Team>();
+        String teamName;
+        String teamCity;
+        Bitmap logo;
+        byte[]     logoBlob;
+        int    season;
+
+        if (curs != null && curs.getCount()>0) {
+            curs.moveToFirst();
+            for (int j = 0; j < curs.getCount(); j++)
+            {
+                teamName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
+                teamCity = curs.getString(curs.getColumnIndex(Schema.TEAMS_CITY));
+                logoBlob  = curs.getBlob(curs.getColumnIndex(Schema.TEAMS_EMBLEM));
+                logo    = BitmapFactory.decodeByteArray(logoBlob, 0 ,logoBlob.length);
+                season   = curs.getInt(curs.getColumnIndex(Schema.TEAMS_SEASON));
+
+                Team item = new Team(teamName, teamCity, logo, season);
+                teamsList.add(item);
+                curs.moveToNext();
+            }
+        }
+
+        listDataChild.put(listDataHeader.get(0), teamsList);// Header, Child data
+    }
+    /*private void prepareListDataOld() {
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<String>>();
+
+        // Adding data header
+        listDataHeader.add(getString(R.string.nav_teams));
+        listDataHeader.add(getString(R.string.nav_settings));
+        listDataHeader.add(getString(R.string.nav_rate));
+        listDataHeader.add(getString(R.string.nav_exit));
+
         FootballDBHelper mDB = new FootballDBHelper(getApplicationContext());
         Cursor curs = mDB.getAllTeams(2016);
 
@@ -227,6 +270,6 @@ public class MainActivity extends AppCompatActivity
             heading1.add("Шахтер Солигорск");
         }
 
-        listDataChild.put(listDataHeader.get(0), heading1);// Header, Child data
-    }
+        listDataChild.put(listDataHeader.get(0), heading1);
+    }*/
 }

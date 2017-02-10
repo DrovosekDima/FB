@@ -6,6 +6,7 @@ package com.egor.drovosek.kursv01;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.egor.drovosek.kursv01.Misc.Team;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,19 +28,16 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private List<String> mListDataHeader; // header titles
 
     // child data in format of header title, child title
-    private HashMap<String, List<String>> mListDataChild;
+    private HashMap<String, List<Team>> mListDataChild;
     ExpandableListView expandList;
 
     public ExpandableListAdapter(Context context,
                                  List<String> listDataHeader,
-                                 HashMap<String, List<String>> listChildData
-                                 //        ,ExpandableListView mView
-    )
+                                 HashMap<String, List<Team>> listChildData )
     {
         this.mContext = context;
         this.mListDataHeader = listDataHeader;
         this.mListDataChild = listChildData;
-        //this.expandList = mView;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public int getChildrenCount(int groupPosition) {
         String temp = this.mListDataHeader.get(groupPosition);
-        List<String> tempSub = this.mListDataChild.get(temp);
+        List<Team> tempSub = this.mListDataChild.get(temp);
         if (tempSub != null)
            return tempSub.size();
         else
@@ -137,7 +137,11 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        final String childText = (String) getChild(groupPosition, childPosition);
+        //final String childText = (String) getChild(groupPosition, childPosition);
+        final Team element = (Team) getChild(groupPosition, childPosition);
+
+        final Bitmap childImage = (Bitmap) element.getEmblem();
+        final String childTeamName = (String) element.getTitle();
 
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) this.mContext
@@ -145,10 +149,11 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             convertView = infalInflater.inflate(R.layout.list_submenu, null);
         }
 
-        TextView txtListChild = (TextView) convertView
-                .findViewById(R.id.submenu);
+        TextView txtListChild = (TextView) convertView.findViewById(R.id.teamName);
+        ImageView imgListChild = (ImageView) convertView.findViewById(R.id.teamLogoImage);
 
-        txtListChild.setText(childText);
+        txtListChild.setText(childTeamName);
+        imgListChild.setImageBitmap(childImage);
 
         return convertView;
     }

@@ -6,6 +6,8 @@ package com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -81,14 +83,18 @@ public class BestPlayersTabFragment extends Fragment {
                 data = String.valueOf(curs.getInt(curs.getColumnIndex("numberOfGoals")));
                 columnGoals.setText(data);
 
+                byte[] byteLogo = curs.getBlob(curs.getColumnIndex("logo"));
+                Bitmap logo = BitmapFactory.decodeByteArray(byteLogo, 0 ,byteLogo.length);
+                columnLogo.setImageBitmap(logo);
+
                 if (odd)
                 {
-                    columnLogo.setImageResource(R.drawable.dinamominsk);
+                    //columnLogo.setImageResource(R.drawable.dinamominsk);
                     row.setBackgroundColor(Color.LTGRAY);
                     odd = false;
                 }
                 else {
-                    columnLogo.setImageResource(R.drawable.bate);
+                    //columnLogo.setImageResource(R.drawable.bate);
                     odd = true;
                 }
 

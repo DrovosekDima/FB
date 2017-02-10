@@ -171,7 +171,11 @@ public class FootballDBHelper extends SQLiteOpenHelper
          */
 
         String selectQuery =
-                "SELECT p.first_name AS first_name, p.second_name AS second_name, t.title AS teamName, COUNT(g.match_id) AS numberOfGoals " +
+                "SELECT p.first_name AS first_name, "    +
+                        "p.second_name AS second_name, " +
+                        "t.title AS teamName, "          +
+                        "t.emblem AS logo, "             +
+                        "COUNT(g.match_id) AS numberOfGoals " +
                 " FROM players AS p " +
                 " JOIN goals AS g ON p.P_ID=g.player_id " +
                 " JOIN matches AS m ON g.match_id=m.M_ID AND m.season=2016 " +
