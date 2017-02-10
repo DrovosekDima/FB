@@ -29,7 +29,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     // child data in format of header title, child title
     private HashMap<String, List<Team>> mListDataChild;
-    ExpandableListView expandList;
+    //ExpandableListView expandList;
 
     public ExpandableListAdapter(Context context,
                                  List<String> listDataHeader,

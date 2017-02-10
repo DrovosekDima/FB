@@ -89,12 +89,10 @@ public class BestPlayersTabFragment extends Fragment {
 
                 if (odd)
                 {
-                    //columnLogo.setImageResource(R.drawable.dinamominsk);
                     row.setBackgroundColor(Color.LTGRAY);
                     odd = false;
                 }
                 else {
-                    //columnLogo.setImageResource(R.drawable.bate);
                     odd = true;
                 }
 
@@ -102,6 +100,8 @@ public class BestPlayersTabFragment extends Fragment {
 
                 curs.moveToNext();
             }
+
+            curs.close();
         }
 
         return view;
