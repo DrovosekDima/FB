@@ -143,9 +143,11 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
             if (temp.getCount() < 1) {
                 temp.close();
                 new GrabMatchesAndGoalsProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "1");
+                //"1" means go to site, parse data, put it into DB and finally get it from DB
             }
             else
                 new GrabMatchesAndGoalsProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "0");
+                //"0" means just run QUERY
         }
         else
         {
