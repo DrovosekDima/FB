@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -37,13 +38,14 @@ public class TableTabFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.i("Debug", "TableStats::onCreate()");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        Log.i("Debug", "TableStats::onCreateView()");
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.tab_frag_table, container, false);
 
@@ -93,9 +95,10 @@ public class TableTabFragment extends Fragment {
 
                 curs.moveToNext();
             }
+            curs.close();
         }
 
-
+        mDB.close();
 
 
         /*row = getActivity().getLayoutInflater().inflate(R.layout.table_stats_row, null);
@@ -110,5 +113,67 @@ public class TableTabFragment extends Fragment {
         table.addView(row);*/
 
         return view;
+    }
+
+    /**
+     * Called when the Fragment is visible to the user.
+     */
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.i("Debug", "TableStats::onStart()");
+    }
+
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     */
+    @Override
+    public void onResume() {
+        Log.i("Debug", "TableStats::onResume()");
+        super.onResume();
+    }
+
+
+    /**
+     * Called when the fragment is no longer in use.  This is called
+     * after {@link #onStop()} and before {@link #onDetach()}.
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i("Debug", "TableStats::onDestroy()");
+    }
+
+    /**
+     * Called when the view previously created by {@link #onCreateView} has
+     * been detached from the fragment.  The next time the fragment needs
+     * to be displayed, a new view will be created.  This is called
+     * after {@link #onStop()} and before {@link #onDestroy()}.  It is called
+     * <em>regardless</em> of whether {@link #onCreateView} returned a
+     * non-null view.  Internally it is called after the view's state has
+     * been saved but before it has been removed from its parent.
+     */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.i("Debug", "TableStats::onDestroyView()");
+    }
+
+    /**
+     * Called when the Fragment is no longer resumed.
+     */
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.i("Debug", "TableStats::onPause()");
+    }
+
+    /**
+     * Called when the Fragment is no longer started.
+     */
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.i("Debug", "TableStats::onStop()");
     }
 }

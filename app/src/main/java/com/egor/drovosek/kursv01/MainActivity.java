@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity
 
     //todo: create global class
     public static int gdSeason = 2016;
-    public static int gdNumberOfRounds = 5; //todo определить количество сезонов
+    public static int gdNumberOfRounds = 6; //todo определить количество сезонов
 
     //private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity
         mViewPager = (ViewPager) findViewById(R.id.container);
         //mViewPager.setAdapter(mSectionsPagerAdapter);
         setupViewPager(mViewPager);
+        mViewPager.setOffscreenPageLimit(4);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);

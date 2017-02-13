@@ -5,6 +5,7 @@ package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
  */
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
@@ -13,6 +14,10 @@ import android.app.Notification;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,24 +30,37 @@ import android.widget.Toast;
 
 import com.egor.drovosek.kursv01.DB.DataMiner;
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
+import com.egor.drovosek.kursv01.DB.Schema;
+import com.egor.drovosek.kursv01.Misc.Match;
+import com.egor.drovosek.kursv01.Misc.Team;
 import com.egor.drovosek.kursv01.R;
 
 public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
     private Context mContext;
-    private ArrayList<GroupRound> rounds;
+
+    private List<String> mGroup; // список туров (Тур 1 "1 апреля - 7 апреля")
+    private HashMap<String, List<ChildMatch>> mChild;
+
+    //private ArrayList<GroupRound> rounds;
     static public Activity mActivity;
 
-    public RoundMatchExpandListAdapter(Context context, Activity inActivity, ArrayList<GroupRound> groups) {
+    public RoundMatchExpandListAdapter(Context context, Activity inActivity, /*ArrayList<GroupRound> groups*/
+                                       List<String> groupData,
+                                       HashMap<String, List<ChildMatch>> childData) {
         this.mContext = context;
-        this.rounds = groups;
+        //this.rounds = groups;
+        this.mGroup = groupData;
+        this.mChild = childData;
+
         this.mActivity = inActivity;
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        ArrayList<ChildMatch> chList = rounds.get(groupPosition).getMatches();
-        return chList.get(childPosition);
+        /*ArrayList<ChildMatch> chList = rounds.get(groupPosition).getMatches();
+        return chList.get(childPosition);*/
+        return this.mChild.get(this.mGroup.get(groupPosition)).get(childPosition);
     }
 
     @Override
@@ -54,46 +72,83 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
     public View getChildView(int groupPosition, int childPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
-        ChildMatch match = (ChildMatch) getChild(groupPosition, childPosition);
+        final ChildMatch element = (ChildMatch) getChild(groupPosition, childPosition);
 
-        if (convertView == null) {
-            LayoutInflater infalInflater = (LayoutInflater) mContext
-                    .getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.match_item, null);
+        View row = convertView;
+        if (row == null)
+        {
+            LayoutInflater infalInflater = (LayoutInflater) this.mContext
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            row = infalInflater.inflate(R.layout.match_item, parent, false);
+
+            ViewHolder holder = new ViewHolder();
+            View myView = row.findViewById(R.id.homeTeamView);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.guestTeamView);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.matchScoreView);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.timeDateView);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.teamHomeImage);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.teamGuestImage);
+            holder.addView(myView);
+
+            row.setTag(holder);
         }
-        TextView tvHome = (TextView) convertView.findViewById(R.id.homeTeamView);
-        TextView tvGuest = (TextView) convertView.findViewById(R.id.guestTeamView);
-        TextView tvScore = (TextView) convertView.findViewById(R.id.scoreView);
-        TextView tvDateTime = (TextView) convertView.findViewById(R.id.timeDateView);
 
-        tvHome.setText(match.gethomeName());
-        tvGuest.setText(match.getGuestName());
-        tvScore.setText(match.getScore());
-        tvDateTime.setText(match.getDateAndTime());
+        // Get the stored ViewHolder that also contains our views
+        ViewHolder holder = (ViewHolder) row.getTag();
 
-        return convertView;
+        TextView tvHome = (TextView) holder.getView(R.id.homeTeamView);
+        TextView tvGuest = (TextView) holder.getView(R.id.guestTeamView);
+        TextView tvScore = (TextView) holder.getView(R.id.matchScoreView);
+        TextView tvDateTime = (TextView) holder.getView(R.id.timeDateView);
+        ImageView ivHomeImage = (ImageView) holder.getView(R.id.teamHomeImage);
+        ImageView ivGuestImage = (ImageView) holder.getView(R.id.teamGuestImage);
 
+        tvHome.setText(element.gethomeName());
+        tvGuest.setText(element.getGuestName());
+        tvScore.setText(element.getScore());
+        tvDateTime.setText(element.getDateAndTime());
+        ivHomeImage.setImageBitmap(element.getHomeLogo());
+        ivGuestImage.setImageBitmap(element.getGuestLogo());
+
+        return row;
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        ArrayList<ChildMatch> matchesList = rounds.get(groupPosition).getMatches();
+        String temp = this.mGroup.get(groupPosition);
+        List<ChildMatch> tempSub = this.mChild.get(temp);
+        if (tempSub != null)
+            return tempSub.size();
+        else
+            return 0;
+        /*ArrayList<ChildMatch> matchesList = rounds.get(groupPosition).getMatches();
         if (matchesList == null)
            return 0;
         else
-           return matchesList.size();
+           return matchesList.size();*/
     }
 
     @Override
     public Object getGroup(int groupPosition) {
         // TODO Auto-generated method stub
-        return rounds.get(groupPosition);
+        return mGroup.get(groupPosition);
     }
 
     @Override
     public int getGroupCount() {
         // TODO Auto-generated method stub
-        return rounds.size();
+        return mGroup.size();
     }
 
     @Override
@@ -105,16 +160,29 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View convertView, ViewGroup parent) {
-        GroupRound group = (GroupRound) getGroup(groupPosition);
-        if (convertView == null) {
-            LayoutInflater inf = (LayoutInflater) mContext
-                    .getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
-            convertView = inf.inflate(R.layout.group_round_item, null);
-        }
-        TextView tv = (TextView) convertView.findViewById(R.id.group_round_name);
-        tv.setText(group.getName());
+        String groupTitle = (String) getGroup(groupPosition);
 
-        return convertView;
+        View row = convertView;
+        if (row == null)
+        {
+            LayoutInflater infalInflater = (LayoutInflater) this.mContext
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            row = infalInflater.inflate(R.layout.group_round_item, parent, false);
+
+            ViewHolder holder = new ViewHolder();
+            View myView = row.findViewById(R.id.group_round_name);
+            holder.addView(myView);
+
+            row.setTag(holder);
+        }
+
+        // Get the stored ViewHolder that also contains our views
+        ViewHolder holder = (ViewHolder) row.getTag();
+
+        TextView groupRoundName = (TextView)holder.getView(R.id.group_round_name);
+        groupRoundName.setText(groupTitle);
+
+        return row;
     }
 
     @Override
@@ -133,7 +201,10 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
     public void onGroupExpanded(int groupPosition) {
         super.onGroupExpanded(groupPosition);
 
-        ArrayList<ChildMatch> match_list = rounds.get(groupPosition).getMatches();
+        //ArrayList<ChildMatch> match_list = rounds.get(groupPosition).getMatches();
+        String groupName = mGroup.get(groupPosition);
+        List<ChildMatch> match_list =  mChild.get(groupName);
+
         /*begin версия с ProgressBar*/
         if (match_list == null || match_list.isEmpty()) {
 
@@ -245,17 +316,19 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
                 boolean grab = args[2].equals("1");
 
                 FootballDBHelper db = new FootballDBHelper(context);
+
                 if (grab) {
                     DataMiner dm = new DataMiner(mContext);
                     dm.populateScheduleWithoutGoalsFG(season, round);
                 }
+
                 Cursor temp = db.getMatchesSeasonRound(season, round);
 
-                ArrayList<ChildMatch> match_list;
+                List<ChildMatch> matches;
 
                 temp.moveToFirst();
 
-                match_list = new ArrayList<ChildMatch>();
+                matches = new ArrayList<ChildMatch>();
 
                 for (int i = 0; i < temp.getCount(); i++)
                 {
@@ -273,14 +346,16 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
                     item.setGuestScore(String.valueOf(scoreGuest));
                     item.setDateAndTime(dateAndTime);
 
-                    match_list.add(item);
+                    matches.add(item);
 
                     temp.moveToNext();
                 }
 
                 temp.close();
 
-                rounds.get(round-1).setMatches(match_list);
+                //rounds.get(round-1).setMatches(match_list);
+                mChild.put(mGroup.get(round-1), matches);
+                db.close();
 
                 return true;
             } catch (Exception e){
@@ -337,16 +412,17 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
                 FootballDBHelper db = new FootballDBHelper(context);
                 if (grab) {
+                    //Toast.makeText(context, "Grab from site", Toast.LENGTH_LONG).show();
                     DataMiner dm = new DataMiner(mContext);
                     dm.populateScheduleWithGoalsAndPlayersFG(season, round);
                 }
                 Cursor temp = db.getMatchesSeasonRound(season, round);
 
-                ArrayList<ChildMatch> match_list;
+                ArrayList<ChildMatch> matches;
 
                 temp.moveToFirst();
 
-                match_list = new ArrayList<ChildMatch>();
+                matches = new ArrayList<ChildMatch>();
 
                 for (int i = 0; i < temp.getCount(); i++)
                 {
@@ -357,21 +433,30 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
                     int scoreGuest = temp.getInt(temp.getColumnIndex("score_guest"));
                     String dateAndTime = temp.getString(temp.getColumnIndex("datem"));
 
+                    byte[] homeLogoBlob  = temp.getBlob(temp.getColumnIndex("homeLogo"));
+                    Bitmap homeLogo    = BitmapFactory.decodeByteArray(homeLogoBlob, 0 ,homeLogoBlob.length);
+
+                    byte[] guestLogoBlob  = temp.getBlob(temp.getColumnIndex("guestLogo"));
+                    Bitmap guestLogo    = BitmapFactory.decodeByteArray(guestLogoBlob, 0 ,guestLogoBlob.length);
+
                     ChildMatch item = new ChildMatch();
                     item.sethomeName(homeTeam);
                     item.setHomeScore(String.valueOf(scoreHome));
                     item.setGuestName(guestTeam);
                     item.setGuestScore(String.valueOf(scoreGuest));
                     item.setDateAndTime(dateAndTime);
+                    item.setHomeLogo(homeLogo);
+                    item.setGuestLogo(guestLogo);
 
-                    match_list.add(item);
+                    matches.add(item);
 
                     temp.moveToNext();
                 }
 
                 temp.close();
 
-                rounds.get(round-1).setMatches(match_list);
+                //rounds.get(round-1).setMatches(match_list);
+                mChild.put(mGroup.get(round-1), matches);
 
                 return true;
             } catch (Exception e){
@@ -381,5 +466,32 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
         }
 
 
+    }
+
+    private class ViewHolder
+    {
+        private HashMap<Integer, View> storedViews = new HashMap<Integer, View>();
+
+        public ViewHolder()
+        {
+        }
+
+        /**
+         *
+         * @param view
+         *            The view to add; to reference this view later, simply refer to its id.
+         * @return This instance to allow for chaining.
+         */
+        public ViewHolder addView(View view)
+        {
+            int id = view.getId();
+            storedViews.put(id, view);
+            return this;
+        }
+
+        public View getView(int id)
+        {
+            return storedViews.get(id);
+        }
     }
 }

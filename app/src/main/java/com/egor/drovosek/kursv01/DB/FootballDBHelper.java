@@ -148,7 +148,16 @@ public class FootballDBHelper extends SQLiteOpenHelper
                     + " JOIN " + TABLE_TEAMS + " AS GUEST ON m." + MATCHES_HOME_TEAM_ID + "=GUEST." + TEAMS_M_ID
                     + " WHERE m." + MATCHES_SEASON + "=" + String.valueOf(season);*/
 
-        String selectQuery = "SELECT m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+  String.valueOf(season) +" AND m.round=" + String.valueOf(round)+";";
+        String selectQuery = "SELECT m.round, " +
+                "HOME.title AS home_title, " +
+                "HOME.emblem AS homeLogo, " +
+                "GUEST.title AS guest_title, " +
+                "GUEST.emblem AS guestLogo, " +
+                "m.score_home, " +
+                "m.score_guest, " +
+                "m.datem, " +
+                "m.location " +
+                "FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+  String.valueOf(season) +" AND m.round=" + String.valueOf(round)+";";
 
         Cursor mCursor = db.rawQuery(selectQuery, null);
 

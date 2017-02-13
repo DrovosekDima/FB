@@ -29,18 +29,28 @@ public class Match {
         return homeName;
     }
 
-    public void setGuestName()
+    public void setGuestName(String inGuestName)
     {
         // имя команды находится в table teams.title
         // select title from teams where T_ID = this.guestTeamID
-        this.guestName = "Test";
+        this.guestName = inGuestName;
     }
 
-    public void setHomeName()
+    public void setHomeName(String inHomeName)
     {
         // имя команды находится в table teams.title
         // select title from teams where T_ID = this.homeTeamID
-        this.guestName = "TestHome";
+        this.guestName = inHomeName;
+    }
+
+    public String getDateAndTime()
+    {
+        return dateAndTime;
+    }
+
+    public String getScore()
+    {
+        return String.valueOf(scoreHome) + " : " + String.valueOf(scoreGuest);
     }
 
     public Match() {

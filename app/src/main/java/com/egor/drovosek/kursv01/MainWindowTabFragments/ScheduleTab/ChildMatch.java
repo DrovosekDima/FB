@@ -1,5 +1,7 @@
 package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by Drovosek on 03/02/2017.
  */
@@ -21,6 +23,24 @@ public class ChildMatch {
     private String dateAndTime;
     private String homeScore;
     private String guestScore;
+    private Bitmap homeLogo;
+    private Bitmap guestLogo;
+
+    public void setHomeLogo(Bitmap inHomeLogo)
+    {
+        this.homeLogo = inHomeLogo;
+    }
+
+    public void setGuestLogo(Bitmap inGuestLogo)
+    {
+        this.guestLogo = inGuestLogo;
+    }
+
+    public Bitmap getHomeLogo()
+    { return this.homeLogo;}
+
+    public Bitmap getGuestLogo()
+    { return this.guestLogo;}
 
     public String getGuestName() {
         return guestName;
