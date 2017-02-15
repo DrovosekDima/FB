@@ -108,6 +108,8 @@ public class BestPlayersTabFragment extends Fragment {
             curs.close();
         }
 
+        mDB.close();
+
         return view;
     }
 
@@ -119,9 +121,6 @@ public class BestPlayersTabFragment extends Fragment {
 
     /**
      * Called when the fragment is visible to the user and actively running.
-     * This is generally
-     * tied to {@link Activity#onResume() Activity.onResume} of the containing
-     * Activity's lifecycle.
      */
     @Override
     public void onResume() {
@@ -157,7 +156,7 @@ public class BestPlayersTabFragment extends Fragment {
 
     /**
      * Called when the Fragment is no longer resumed.  This is generally
-     * tied to {@link Activity#onPause() Activity.onPause} of the containing
+     * tied to { Activity#onPause() Activity.onPause} of the containing
      * Activity's lifecycle.
      */
     @Override
@@ -168,7 +167,7 @@ public class BestPlayersTabFragment extends Fragment {
 
     /**
      * Called when the Fragment is no longer started.  This is generally
-     * tied to {@link Activity#onStop() Activity.onStop} of the containing
+     * tied to {Activity#onStop() Activity.onStop} of the containing
      * Activity's lifecycle.
      */
     @Override

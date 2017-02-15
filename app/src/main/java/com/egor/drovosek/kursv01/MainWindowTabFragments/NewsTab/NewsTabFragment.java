@@ -37,7 +37,7 @@ public class NewsTabFragment extends Fragment {
         Context context = getActivity().getApplicationContext();
 
         webView = (WebView) view.findViewById(R.id.webview);
-        webView.loadUrl("http://football.by/news/belarus/");
+        //webView.loadUrl("http://football.by/news/belarus/");
         return view;
     }
 
@@ -90,20 +90,6 @@ public class NewsTabFragment extends Fragment {
 
         // Javascript inabled on webview
         webView.getSettings().setJavaScriptEnabled(true);
-
-        // Other webview options
-        /*
-        webView.getSettings().setLoadWithOverviewMode(true);
-        webView.getSettings().setUseWideViewPort(true);
-        webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-        webView.setScrollbarFadingEnabled(false);
-        webView.getSettings().setBuiltInZoomControls(true);
-        */
-
-        /*
-         String summary = "<html><body>You scored <b>192</b> points.</body></html>";
-         webview.loadData(summary, "text/html", null);
-         */
 
         //Load url in webview
         webView.loadUrl(url);

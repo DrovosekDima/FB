@@ -6,6 +6,8 @@ package com.egor.drovosek.kursv01.MainWindowTabFragments.TableStats;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import android.widget.TextView;
 import com.egor.drovosek.kursv01.DB.DataMiner;
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.DB.Schema;
+import com.egor.drovosek.kursv01.Misc.Team;
 import com.egor.drovosek.kursv01.R;
 
 import java.util.ArrayList;
@@ -53,13 +56,28 @@ public class TableTabFragment extends Fragment {
 
         TableLayout table = (TableLayout) view.findViewById(R.id.statsTable);
         View row;
+
         TextView columnRank;
         ImageView columnLogo;
         TextView columnTeamName;
+        TextView columnPlays;
+        TextView columnWins;
+        TextView columnDraws;
+        TextView columnLosts;
+        TextView columnPoints;
+        TextView columnGoalsForAgainst;
+        TextView columnDifference;
 
         FootballDBHelper mDB = new FootballDBHelper(context);
-        Cursor curs = mDB.getAllTeams(2016);
-
+        Cursor curs = mDB.getStats(2016);
+                /*teamName, " +
+                " SUM(NOM) as numberofgames, " +
+                " SUM(Win) as wins, " +
+                " SUM(Draw) as draws, " +
+                " SUM(Lost) as losts, " +
+                "         SUM(score_in) as goalsfor, " +
+                " SUM(score_out) as goalsagainst, " +
+                " SUM(Win*3 + Draw) as points " +*/
 
         if (curs != null && curs.getCount()>0)
         {
@@ -69,27 +87,49 @@ public class TableTabFragment extends Fragment {
             curs.moveToFirst();
             for(int i =0; i< sizeCurs; i++)
             {
-                String tmpWName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
-
                 row = getActivity().getLayoutInflater().inflate(R.layout.table_stats_row, null);
 
                 columnRank = (TextView) row.findViewById(R.id.colRank);
                 columnLogo = (ImageView) row.findViewById(R.id.colLogo);
                 columnTeamName = (TextView) row.findViewById(R.id.colTeamName);
+                columnPlays= (TextView) row.findViewById(R.id.colPlays);
+                columnWins= (TextView) row.findViewById(R.id.colWons);
+                columnDraws = (TextView) row.findViewById(R.id.colDraws);
+                columnLosts= (TextView) row.findViewById(R.id.colLosts);
+                columnPoints= (TextView) row.findViewById(R.id.colPoints);
+                columnGoalsForAgainst= (TextView) row.findViewById(R.id.colGoalsForAgainst);
+                columnDifference= (TextView) row.findViewById(R.id.colGoalsDifferecnces);
+
+                String teamName = curs.getString(curs.getColumnIndex("teamName"));
+                String numOfGames = curs.getString(curs.getColumnIndex("numberofgames"));
+                String wins = curs.getString(curs.getColumnIndex("wins"));
+                String draws = curs.getString(curs.getColumnIndex("draws"));
+                String losts = curs.getString(curs.getColumnIndex("losts"));
+
+                String gF = curs.getString(curs.getColumnIndex("goalsfor"));
+                String gA = curs.getString(curs.getColumnIndex("goalsagainst"));
+                String goalsForAg = "(" + gF + "-" +  gA + ")";
+
+                String points = curs.getString(curs.getColumnIndex("points"));
 
                 columnRank.setText(String.valueOf(i+1));
-                columnTeamName.setText(tmpWName);
+                columnTeamName.setText(teamName);
+                columnPlays.setText(numOfGames);
+                columnWins.setText(wins);
+                columnDraws.setText(draws);
+                columnLosts.setText(losts);
+                columnPoints.setText(points);
+                columnGoalsForAgainst.setText(goalsForAg);
+                columnDifference.setText(String.valueOf(Integer.valueOf(gF) - Integer.valueOf(gA)));
+
+                byte[] byteLogo = curs.getBlob(curs.getColumnIndex("teamLogo"));
+                Bitmap logo = BitmapFactory.decodeByteArray(byteLogo, 0 ,byteLogo.length);
+                columnLogo.setImageBitmap(logo);
 
                 if (odd)
-                {
-                    columnLogo.setImageResource(R.drawable.dinamominsk);
                     row.setBackgroundColor(Color.LTGRAY);
-                    odd = false;
-                }
-                else {
-                    columnLogo.setImageResource(R.drawable.bate);
-                    odd = true;
-                }
+
+                odd = !odd;
 
                 table.addView(row);
 

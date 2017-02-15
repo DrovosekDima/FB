@@ -237,40 +237,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         listDataChild.put(listDataHeader.get(0), teamsList);// Header, Child data
+
+        mDB.close();
     }
-    /*private void prepareListDataOld() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
-
-        // Adding data header
-        listDataHeader.add(getString(R.string.nav_teams));
-        listDataHeader.add(getString(R.string.nav_settings));
-        listDataHeader.add(getString(R.string.nav_rate));
-        listDataHeader.add(getString(R.string.nav_exit));
-
-        FootballDBHelper mDB = new FootballDBHelper(getApplicationContext());
-        Cursor curs = mDB.getAllTeams(2016);
-
-        List<String> heading1 = new ArrayList<String>();
-
-        if (curs != null && curs.getCount()>0) {
-
-            curs.moveToFirst();
-            while (!curs.isLast())
-            {
-                String tmpWName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
-                heading1.add(tmpWName);
-                curs.moveToNext();
-            }
-            String tmpWName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
-            heading1.add(tmpWName);
-        }
-        else {
-            heading1.add("Динамо Минск");
-            heading1.add("БАТЭ");
-            heading1.add("Шахтер Солигорск");
-        }
-
-        listDataChild.put(listDataHeader.get(0), heading1);
-    }*/
 }

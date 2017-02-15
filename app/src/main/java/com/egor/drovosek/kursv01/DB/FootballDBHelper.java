@@ -165,6 +165,85 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
     }
 
+    /*---------------------------------------------
+    возвращает статистику за определенный год
+
+  SELECT teamName,
+		 SUM(NOM) as 'Игр',
+		 SUM(Win) as 'Побед',
+		 SUM(Draw) as 'Ничьи',
+		 SUM(Lost) as 'Проигр',
+         SUM(score_in) as 'Число забитых',
+		 SUM(score_out) as 'Число пропущенных' ,
+		 SUM(Win*3 + Draw) as points
+  FROM
+    (SELECT m.M_ID, HOME.T_ID as teamID, HOME.title as teamName, SUM(m.score_home) AS score_in, SUM(m.score_guest) AS score_out,
+     	COUNT(case when score_home=score_guest then 1 else null end) AS Draw,
+		COUNT(case when score_home>score_guest then 1 else null end) AS Win,
+		COUNT(case when score_home<score_guest then 1 else null end) AS Lost,
+		COUNT(HOME.title) AS NOM
+        FROM matches AS m
+        JOIN teams AS HOME ON m.home_team_id=HOME.T_ID
+        JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID
+        GROUP BY HOME.title
+    union
+    SELECT m.M_ID, GUEST.T_ID as teamID, GUEST.title as teamName, SUM(m.score_guest) AS score_in, SUM(m.score_home) AS score_out,
+	      COUNT(case when score_home=score_guest then 1 else null end) AS Draw,
+		  COUNT(case when score_home<score_guest then 1 else null end) AS Win,
+		  COUNT(case when score_home>score_guest then 1 else null end) AS Lost,
+		  COUNT(GUEST.title) AS NOM
+          FROM matches AS m
+          JOIN teams AS HOME ON m.home_team_id=HOME.T_ID
+          JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID
+          GROUP BY GUEST.title
+      )
+    GROUP BY teamName ORDER BY points DESC;
+---------------------------------------------*/
+    public Cursor getStats(int season) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT teamName, " +
+                " teamLogo, " +
+                " SUM(NOM) as numberofgames, " +
+                " SUM(Win) as wins, " +
+                " SUM(Draw) as draws, " +
+                " SUM(Lost) as losts, " +
+                " SUM(score_in) as goalsfor, " +
+                " SUM(score_out) as goalsagainst, " +
+                " SUM(Win*3 + Draw) as points " +
+
+                " FROM " +
+                "    (SELECT m.M_ID, HOME.T_ID as teamID, HOME.title as teamName, HOME.emblem as teamLogo, SUM(m.score_home) AS score_in, SUM(m.score_guest) AS score_out, " +
+                "       COUNT(case when score_home=score_guest then 1 else null end) AS Draw, " +
+                "       COUNT(case when score_home>score_guest then 1 else null end) AS Win, " +
+                "       COUNT(case when score_home<score_guest then 1 else null end) AS Lost, " +
+                "       COUNT(HOME.title) AS NOM " +
+                "     FROM matches AS m " +
+                "        JOIN teams AS HOME ON m.home_team_id=HOME.T_ID " +
+                "        JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID " +
+                "     WHERE m.season=" + String.valueOf(season) +
+                "     GROUP BY HOME.title " +
+                "    union " +
+                "    SELECT m.M_ID, GUEST.T_ID as teamID, GUEST.title as teamName, GUEST.emblem as teamLogo, SUM(m.score_guest) AS score_in, SUM(m.score_home) AS score_out, " +
+                "       COUNT(case when score_home=score_guest then 1 else null end) AS Draw, " +
+                "       COUNT(case when score_home<score_guest then 1 else null end) AS Win, " +
+                "       COUNT(case when score_home>score_guest then 1 else null end) AS Lost, " +
+                "       COUNT(GUEST.title) AS NOM " +
+                "    FROM matches AS m " +
+                "          JOIN teams AS HOME ON m.home_team_id=HOME.T_ID " +
+                "          JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID " +
+                "        WHERE m.season=" + String.valueOf(season) +
+                "          GROUP BY GUEST.title " +
+                "      ) " +
+                "    GROUP BY teamName ORDER BY points DESC;";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        return mCursor;
+
+    }
+
     public Cursor getBestPlayers(int season) throws SQLException
     {
         SQLiteDatabase db = this.getReadableDatabase();
