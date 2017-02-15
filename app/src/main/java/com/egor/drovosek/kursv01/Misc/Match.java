@@ -1,82 +1,89 @@
 package com.egor.drovosek.kursv01.Misc;
 
+import android.graphics.Bitmap;
+
 /**
- * Created by Drovosek on 30/01/2017.
+ * Created by Drovosek on 03/02/2017.
+ */
+/*
+Match - элемент который отображается в ExpandebleListView (расписание).
+Информация о матче:
+-----------------------------
+|   БАТЭ    5:0    Городея  |
+|     вс 27 ноя 16:00       |
+-----------------------------
  */
 
 public class Match {
 
-    int matchID;
-    int homeTeamID;
-    int guestTeamID;
-    int scoreHome;
-    int scoreGuest;
-    int round;
-    int season;
-    String dateAndTime;
-    String location;
-
-    private String guestName;
     private String homeName;
+    private String guestName;
+    private String dateAndTime;
+    private String homeScore;
+    private String guestScore;
+    private Bitmap homeLogo;
+    private Bitmap guestLogo;
 
-    public String getGuestName()
+    public void setHomeLogo(Bitmap inHomeLogo)
     {
+        this.homeLogo = inHomeLogo;
+    }
+
+    public void setGuestLogo(Bitmap inGuestLogo)
+    {
+        this.guestLogo = inGuestLogo;
+    }
+
+    public Bitmap getHomeLogo()
+    { return this.homeLogo;}
+
+    public Bitmap getGuestLogo()
+    { return this.guestLogo;}
+
+    public String getGuestName() {
         return guestName;
     }
 
-    public String getHomeName()
-    {
+    public void setGuestName(String Name) {
+        this.guestName = Name;
+    }
+
+    public String gethomeName() {
         return homeName;
     }
 
-    public void setGuestName(String inGuestName)
-    {
-        // имя команды находится в table teams.title
-        // select title from teams where T_ID = this.guestTeamID
-        this.guestName = inGuestName;
+    public void sethomeName(String Name) {
+        this.homeName = Name;
     }
 
-    public void setHomeName(String inHomeName)
-    {
-        // имя команды находится в table teams.title
-        // select title from teams where T_ID = this.homeTeamID
-        this.guestName = inHomeName;
-    }
-
-    public String getDateAndTime()
-    {
+    public String getDateAndTime() {
         return dateAndTime;
     }
 
-    public String getScore()
-    {
-        return String.valueOf(scoreHome) + " : " + String.valueOf(scoreGuest);
+    public void setDateAndTime(String Name) {
+        this.dateAndTime = Name;
     }
 
-    public Match() {
-        super();
+    public String getHomeScore() {
+        return homeScore;
     }
 
-    Match(int _homeTeamID,
-          int _guestTeamID,
-          int _scoreHome,
-          int _scoreGuest,
-          int _season,
-          String _dateAndTime,
-          String _location)
-    {
-        super();
-        homeTeamID = _homeTeamID;
-        guestTeamID = _guestTeamID;
-        scoreHome   = _scoreHome;
-        scoreGuest  = _scoreGuest;
-        season      = _season;
-        dateAndTime = _dateAndTime;
-        location      = _location;
+    public void setHomeScore(String score) {
+        this.homeScore = score;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
+    public String getGuestScore() {
+        return guestScore;
     }
+
+    public void setGuestScore(String score) {
+        this.guestScore = score;
+    }
+
+    public String getScore() {
+        String score = homeScore + " : " + guestScore;
+        return score ;
+    }
+
 }
+

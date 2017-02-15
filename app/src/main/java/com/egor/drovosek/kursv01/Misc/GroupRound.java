@@ -1,4 +1,4 @@
-package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
+package com.egor.drovosek.kursv01.Misc;
 
 /**
  * Created by Drovosek on 03/02/2017.
@@ -15,12 +15,14 @@ GroupRound - номер тура в ExpandebleListView (расписание).
  ----------------------------------------
  */
 
+import com.egor.drovosek.kursv01.Misc.Match;
+
 import java.util.ArrayList;
 
 public class GroupRound {
 
     private String round;
-    private ArrayList<ChildMatch> matches;
+    private ArrayList<Match> matches;
 
     public GroupRound() {
         this.round = "";
@@ -33,10 +35,10 @@ public class GroupRound {
     public void setName(String in) {
         this.round = in;
     }
-    public ArrayList<ChildMatch> getMatches() {
+    public ArrayList<Match> getMatches() {
         return matches;
     }
-    public void setMatches(ArrayList<ChildMatch> Items) {
+    public void setMatches(ArrayList<Match> Items) {
         this.matches = Items;
     }
 

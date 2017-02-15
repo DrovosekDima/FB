@@ -1,14 +1,13 @@
 package com.egor.drovosek.kursv01;
 
+import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,6 +19,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
+import android.os.Handler;
+import android.os.Message;
 
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.DB.Schema;
@@ -30,10 +31,10 @@ import com.egor.drovosek.kursv01.MainWindowTabFragments.TableStats.TableTabFragm
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ViewPagerAdapter;
 import com.egor.drovosek.kursv01.Misc.Team;
 
-import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity
     public static int gdNumberOfRounds = 6; //todo определить количество сезонов
 
     //private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ProgressDialog progressState;
     private ViewPager mViewPager;
 
     View view_Group;
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         expandableList = (ExpandableListView) findViewById(R.id.navigationmenu);
-        prepareListData();
+        prepareLeftMenuItems();
 
         mMenuAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
 
@@ -169,13 +171,36 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        //нажали кнопку обновить данные (на первом шаге получаем данные)
         if (id == R.id.action_refresh) {
+            Toast.makeText(MainActivity.this,"Refresh started!", Toast.LENGTH_SHORT).show();
+
+            //progressState = ProgressDialog.show(MainActivity.this, "", "Воруем данные с football.by...");
+            new Thread() {
+                public void run() {
+                    //grab data from football.by
+                    try {
+                        TimeUnit.SECONDS.sleep(15);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                    messageHandler.sendEmptyMessage(0);
+                }
+            }.start();
+
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private Handler messageHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Toast.makeText(MainActivity.this,"Refresh finished!", Toast.LENGTH_SHORT).show();
+            //progressState.dismiss();
+        }
+    };
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -183,22 +208,22 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        /*if (id == R.id.nav_teams) {
+        if (id == R.id.nav_teams_) {
             // Handle the camera action
-        } else if (id == R.id.nav_settings) {
+        } else if (id == R.id.nav_settings_) {
 
         } else if (id == R.id.nav_exit) {
+            finish();
+        } else if (id == R.id.nav_rate_) {
 
-        } else if (id == R.id.nav_rate) {
-
-        }*/
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void prepareListData() {
+    private void prepareLeftMenuItems() {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<Team>>();
 
@@ -208,36 +233,13 @@ public class MainActivity extends AppCompatActivity
         listDataHeader.add(getString(R.string.nav_rate));
         listDataHeader.add(getString(R.string.nav_exit));
 
-        // Adding child data
-        // получаем список комманд из db table TEAMS
         FootballDBHelper mDB = new FootballDBHelper(getApplicationContext());
-        Cursor curs = mDB.getAllTeams(2016);
 
-        List<Team> teamsList = new ArrayList<Team>();
-        String teamName;
-        String teamCity;
-        Bitmap logo;
-        byte[]     logoBlob;
-        int    season;
-
-        if (curs != null && curs.getCount()>0) {
-            curs.moveToFirst();
-            for (int j = 0; j < curs.getCount(); j++)
-            {
-                teamName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
-                teamCity = curs.getString(curs.getColumnIndex(Schema.TEAMS_CITY));
-                logoBlob  = curs.getBlob(curs.getColumnIndex(Schema.TEAMS_EMBLEM));
-                logo    = BitmapFactory.decodeByteArray(logoBlob, 0 ,logoBlob.length);
-                season   = curs.getInt(curs.getColumnIndex(Schema.TEAMS_SEASON));
-
-                Team item = new Team(teamName, teamCity, logo, season);
-                teamsList.add(item);
-                curs.moveToNext();
-            }
-        }
-
-        listDataChild.put(listDataHeader.get(0), teamsList);// Header, Child data
+        List<Team> teamsList = mDB.getListTeams(gdSeason);
 
         mDB.close();
+
+        listDataChild.put(listDataHeader.get(0), teamsList);// Header, Child data
     }
+
 }

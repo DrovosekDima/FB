@@ -4,9 +4,6 @@ package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
  * Created by Drovosek on 27/01/2017.
  */
 
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -15,14 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
-import com.egor.drovosek.kursv01.DB.DataMiner;
-import com.egor.drovosek.kursv01.DB.FootballDBHelper;
-import com.egor.drovosek.kursv01.DB.Schema;
-import com.egor.drovosek.kursv01.MainActivity;
-import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ChildMatch;
-import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.GroupRound;
-import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.RoundMatchExpandListAdapter;
-import com.egor.drovosek.kursv01.Misc.Team;
+import com.egor.drovosek.kursv01.Misc.Match;
 import com.egor.drovosek.kursv01.R;
 
 import java.util.ArrayList;
@@ -30,14 +20,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.egor.drovosek.kursv01.MainActivity.gdNumberOfRounds;
-import static com.egor.drovosek.kursv01.MainActivity.gdSeason;
 
 
 public class ScheduleTabFragment extends Fragment {
 
     private RoundMatchExpandListAdapter ExpAdapter;
     private ArrayList<String> groupItems;
-    private HashMap<String, List<ChildMatch>> matchItems;
+    private HashMap<String, List<Match>> matchItems;
     private ExpandableListView ExpandList;
 
     @Override
@@ -100,12 +89,12 @@ public class ScheduleTabFragment extends Fragment {
     public void SetInitialRounds()
     {
         groupItems = new ArrayList<String>();
-        matchItems = new HashMap<String, List<ChildMatch>>();
-        ArrayList<ChildMatch> matchTemp;
+        matchItems = new HashMap<String, List<Match>>();
+        ArrayList<Match> matchTemp;
 
         for (int i = 0; i < gdNumberOfRounds; i++)
         {
-            matchTemp = new ArrayList<ChildMatch>();
+            matchTemp = new ArrayList<Match>();
             groupItems.add("Тур " + String.valueOf(i));
             matchItems.put(groupItems.get(i), matchTemp);
         }

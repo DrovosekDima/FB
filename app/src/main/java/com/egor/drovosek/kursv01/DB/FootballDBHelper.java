@@ -14,10 +14,15 @@ import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
+
 import android.graphics.BitmapFactory;
 import android.util.Log;
+
+import com.egor.drovosek.kursv01.Misc.Team;
 
 import static android.support.v7.appcompat.R.id.image;
 import static com.egor.drovosek.kursv01.DB.Schema.*;
@@ -502,4 +507,35 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
             return teamValue;
         }
+
+        public List<Team> getListTeams(int inSeason)
+    {
+        // получаем список комманд из db table TEAMS
+        Cursor curs = getAllTeams(inSeason);
+
+        List<Team> teamsList = new ArrayList<Team>();
+        String teamName;
+        String teamCity;
+        Bitmap logo;
+        byte[]     logoBlob;
+        int    season;
+
+        if (curs != null && curs.getCount()>0) {
+            curs.moveToFirst();
+            for (int j = 0; j < curs.getCount(); j++)
+            {
+                teamName = curs.getString(curs.getColumnIndex(Schema.TEAMS_TITLE));
+                teamCity = curs.getString(curs.getColumnIndex(Schema.TEAMS_CITY));
+                logoBlob  = curs.getBlob(curs.getColumnIndex(Schema.TEAMS_EMBLEM));
+                logo    = BitmapFactory.decodeByteArray(logoBlob, 0 ,logoBlob.length);
+                season   = curs.getInt(curs.getColumnIndex(Schema.TEAMS_SEASON));
+
+                Team item = new Team(teamName, teamCity, logo, season);
+                teamsList.add(item);
+                curs.moveToNext();
+            }
+        }
+
+        return teamsList;
+     }
     }
