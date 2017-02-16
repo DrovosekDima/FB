@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity
 
         dataMinerThread.sendMessageToDataMinerHandler("Ping");
 
-        dataMinerThread.postTask(new GrabTeamsRunnable(mUIHandler));
+        dataMinerThread.postTask(new GrabTeamsRunnable(mUIHandler, getApplicationContext()));
     }
 
     private void setupViewPager(ViewPager viewPager) {

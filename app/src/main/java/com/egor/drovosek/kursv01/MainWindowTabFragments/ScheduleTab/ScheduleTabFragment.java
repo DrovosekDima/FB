@@ -2,6 +2,8 @@ package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
 
 /**
  * Created by Drovosek on 27/01/2017.
+ * Расписание игр
+ * В формате ТУР -> список игр
  */
 
 import android.os.Bundle;
@@ -60,10 +62,6 @@ public class ScheduleTabFragment extends Fragment {
         //FootballDBHelper db = new FootballDBHelper(getActivity().getApplicationContext());
         //db.ClearTable(Schema.TABLE_TEAMS);
 
-        /*todo: найти лучшее место для инициализации*/
-//        DataMiner dm = new DataMiner(getActivity().getApplicationContext());
-//        dm.populateTeam(2016);
-
         //dm.populateScheduleWithoutGoalsBG(2016, 2);
         /*Cursor temp = db.getMatchesSeason(2016);
 
@@ -113,9 +111,6 @@ public class ScheduleTabFragment extends Fragment {
 
     /**
      * Called when the fragment is visible to the user and actively running.
-     * This is generally
-     * tied to {@link Activity#onResume() Activity.onResume} of the containing
-     * Activity's lifecycle.
      */
     @Override
     public void onResume() {
@@ -150,9 +145,7 @@ public class ScheduleTabFragment extends Fragment {
     }
 
     /**
-     * Called when the Fragment is no longer resumed.  This is generally
-     * tied to {@link Activity#onPause() Activity.onPause} of the containing
-     * Activity's lifecycle.
+     * Called when the Fragment is no longer resumed.
      */
     @Override
     public void onPause() {
@@ -161,9 +154,7 @@ public class ScheduleTabFragment extends Fragment {
     }
 
     /**
-     * Called when the Fragment is no longer started.  This is generally
-     * tied to {@link Activity#onStop() Activity.onStop} of the containing
-     * Activity's lifecycle.
+     * Called when the Fragment is no longer started.
      */
     @Override
     public void onStop() {

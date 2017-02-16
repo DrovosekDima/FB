@@ -41,6 +41,69 @@ public class DataMiner {
         mDB = new FootballDBHelper(inContext);
     }
 
+    public void grabTeam(int inSeason)
+    {
+
+        String title;//Тут храним значение заголовка сайта
+        List<Element> teams;
+        String address; //адрес страницы http://football.by...
+        Element item;
+
+        Elements tables;
+
+        Document doc = null;//Здесь хранится будет разобранный html документ
+        Element elem;
+        try
+        {
+            //Считываем страницу http://football.by/stat/belarus/"inSeason"/teams/
+            //String test = "http://football.by/stat/belarus/" + params[0].toString() + "/teams";
+            String test = "http://fbdata.ucoz.net/";
+            doc = Jsoup.connect(test).get();
+        }
+        catch (IOException e)
+        {
+            //Если не получилось считать
+            e.printStackTrace();
+        }
+
+        //Если всё считалось, что вытаскиваем из считанного html документа заголовок
+        if (doc != null)
+            //teams = doc.select(".st-teams-team");
+            tables = doc.select("table");
+        else {
+            title = "Ошибка";
+            return;
+        }
+
+            /*вариант для http://fbdata.ucoz.net*/
+        //todo обработка номера сезона
+
+        Element tblOneSeason = tables.get(0); //первая таблица содержит комманды за 2016
+        Elements rows = tblOneSeason.select("tr");
+
+        for (int i = 0; i < rows.size(); i++) {
+            Element row = rows.get(i);
+            Elements columns = row.select("td");
+            String teamName = columns.get(0).text();
+            String city = columns.get(1).text();
+            Element image = columns.get(2).select("img").first();
+            String imgUrl = image.absUrl("src");
+
+            Bitmap teamLogo = getImageBitmap(imgUrl);
+
+            ContentValues teamTemp = mDB.createTeamValue(
+                    teamName,
+                    city,
+                    teamLogo,
+                    "",
+                    inSeason);
+
+            mDB.addTeam(teamTemp);
+        }
+
+        return;
+    }
+
     public int populateTeam(int inSeason) {
     /*-------------------------------------------------
     - Идем по адресу
@@ -606,7 +669,7 @@ public class DataMiner {
 
         while (i < teams.size())
         {
-            String homeAndGuestgoals="";
+            String homeAndGuestgoals;
 
             home = teams.get(i).select(".md-left").text();
             guest = teams.get(i).select(".md-right").text();

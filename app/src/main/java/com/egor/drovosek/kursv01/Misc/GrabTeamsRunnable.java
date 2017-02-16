@@ -1,9 +1,13 @@
 package com.egor.drovosek.kursv01.Misc;
 
+import android.content.Context;
 import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+
+import com.egor.drovosek.kursv01.DB.DataMiner;
 
 import java.util.Date;
 import java.util.Locale;
@@ -15,9 +19,13 @@ import java.util.concurrent.TimeUnit;
 
 public class GrabTeamsRunnable implements Runnable {
 
+    private final String TAG = "GrabTeamsRunnable";
     Handler mUIHandler;
+    Context mContext;
 
-    public GrabTeamsRunnable(Handler inHandler) {
+    public GrabTeamsRunnable(Handler inHandler, Context inContext)
+    {
+        mContext = inContext;
         mUIHandler = inHandler;
     }
 
@@ -32,11 +40,13 @@ public class GrabTeamsRunnable implements Runnable {
 
         mUIHandler.sendMessage(msg);
 
-        try {
-            TimeUnit.SECONDS.sleep(5);
-        }catch (InterruptedException e){
-            e.printStackTrace();
-        }
+        Log.d(TAG, "new DataMiner");
+
+        DataMiner dm = new DataMiner(mContext);
+        //todo add season;
+        Log.d(TAG, "grab team for ");
+        dm.grabTeam(2016);
+        Log.d(TAG, "finished: grab team");
 
         msg = mUIHandler.obtainMessage();
         bundle = new Bundle();
