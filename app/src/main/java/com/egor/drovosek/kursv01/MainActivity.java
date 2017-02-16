@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -29,6 +30,8 @@ import com.egor.drovosek.kursv01.MainWindowTabFragments.NewsTab.NewsTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.TableStats.TableTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ViewPagerAdapter;
+import com.egor.drovosek.kursv01.Misc.DataMinerWorkerThread;
+import com.egor.drovosek.kursv01.Misc.GrabTeamsRunnable;
 import com.egor.drovosek.kursv01.Misc.Team;
 
 import java.util.ArrayList;
@@ -135,6 +138,13 @@ public class MainActivity extends AppCompatActivity
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+        DataMinerWorkerThread dataMinerThread;
+
+        dataMinerThread = new DataMinerWorkerThread("DataMinerThread", mUIHandler);
+
+        dataMinerThread.sendHello();
+
+        dataMinerThread.postTask(new GrabTeamsRunnable(mUIHandler));
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -176,7 +186,7 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(MainActivity.this,"Refresh started!", Toast.LENGTH_SHORT).show();
 
             //progressState = ProgressDialog.show(MainActivity.this, "", "Воруем данные с football.by...");
-            new Thread() {
+            /*new Thread() {
                 public void run() {
                     //grab data from football.by
                     try {
@@ -184,9 +194,9 @@ public class MainActivity extends AppCompatActivity
                     }catch (InterruptedException e){
                         e.printStackTrace();
                     }
-                    messageHandler.sendEmptyMessage(0);
+                    mUIHandler.sendEmptyMessage(0);
                 }
-            }.start();
+            }.start();*/
 
             return true;
         }
@@ -194,10 +204,15 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private Handler messageHandler = new Handler() {
+    private Handler mUIHandler = new Handler() {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Toast.makeText(MainActivity.this,"Refresh finished!", Toast.LENGTH_SHORT).show();
+
+            Bundle bundle = msg.getData();
+            String dataFromMSG = bundle.getString("mydata");
+
+            Log.i("MAIN", "mUIHandler got message " + dataFromMSG);
+            Toast.makeText(MainActivity.this, dataFromMSG, Toast.LENGTH_SHORT).show();
             //progressState.dismiss();
         }
     };
