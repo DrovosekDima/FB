@@ -30,21 +30,31 @@ public class DataMinerWorkerThread{
         ht.start();
         Log.i(TAG, " started");
 
-        mWorkerHandler = new Handler(ht.getLooper()){
-            public void handleMessage (Message msg){
+        mWorkerHandler = new Handler(ht.getLooper())
+        {
+            public void handleMessage (Message msg)
+            {
                 Log.i(TAG, " handleMessage entered");
-                if (msg.what == MSG_START_HELLO){
-                    Message test = mUIHandler.obtainMessage();
-                    Bundle bundle = new Bundle();
 
-                    bundle.putString("mydata", "enter in run");
-                    test.setData(bundle);
+                Bundle bundle = msg.getData();
+                String dataFromMSG = bundle.getString("mydata");
+                Log.i(TAG, "mWorkerHandler got message " + dataFromMSG);
 
-                    mUIHandler.sendMessage(test);
 
+                {//send response to UI
+                        Message test = mUIHandler.obtainMessage();
+
+                        bundle = new Bundle();
+
+                        bundle.putString("mydata", "from UI " + dataFromMSG);
+                        test.setData(bundle);
+
+                        mUIHandler.sendMessage(test);
                 }
+
                 Log.i(TAG, " handleMessage exited");
             }
+
         };
     }
 
@@ -53,10 +63,21 @@ public class DataMinerWorkerThread{
         mWorkerHandler.post(task);
     }
 
-    public void sendHello()
+    public void sendMessageToDataMinerHandler(String inMessage)
     {
-        Log.i(TAG, " sendHello");
-        mWorkerHandler.sendEmptyMessage(MSG_START_HELLO);
+        Log.i(TAG, "send message to mWorkerHandler" + inMessage);
+
+        Message test = mWorkerHandler.obtainMessage();
+
+        Bundle bundle = new Bundle();
+
+        bundle.putString("mydata", inMessage);
+        test.setData(bundle);
+
+    }
+
+    public Handler getWorkerHandler(){
+        return mWorkerHandler;
     }
 
 }

@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity
 
         dataMinerThread = new DataMinerWorkerThread("DataMinerThread", mUIHandler);
 
-        dataMinerThread.sendHello();
+        dataMinerThread.sendMessageToDataMinerHandler("Ping");
 
         dataMinerThread.postTask(new GrabTeamsRunnable(mUIHandler));
     }
