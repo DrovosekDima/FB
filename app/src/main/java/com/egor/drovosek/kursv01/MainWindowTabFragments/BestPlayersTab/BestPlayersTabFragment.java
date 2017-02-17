@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.SimpleCursorAdapter;
 
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.DB.Schema;
@@ -28,10 +29,89 @@ import static com.egor.drovosek.kursv01.MainActivity.gdSeason;
 
 public class BestPlayersTabFragment extends Fragment {
 
+    public class CursorAdapterWithImage extends SimpleCursorAdapter
+    {
+        private Cursor c;
+        private Context context;
+
+        public CursorAdapterWithImage(Context context, int layout, Cursor c, String[] from, int[] to)
+        {
+            super(context, layout, c, from, to);
+            this.c = c;
+            this.context = context;
+        }
+
+        public View getView(int pos, View inView, ViewGroup parent)
+        {
+            View v = inView;
+
+            if (v == null)
+            {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                v = inflater.inflate(R.layout.table_bestplayers_row, null);
+            }
+            this.c.moveToPosition(pos);
+
+            String exerciseName = this.c.getString(this.c.getColumnIndex("firstName"));
+            String exerciseDescr = this.c.getString(this.c.getColumnIndex("secondName"));
+            byte[] image = this.c.getBlob(this.c.getColumnIndex("logo"));
+
+            ImageView iv = (ImageView) v.findViewById(R.id.colLogoBP);
+            if (image != null)
+            {
+                // If there is no image in the database "NA" is stored instead of a blob
+                // test if there more than 3 chars "NA" + a terminating char if more than
+                // there is an image otherwise load the default
+                if (image.length > 3)
+                {
+                    iv.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
+                }
+            /*else
+            {
+                iv.setImageResource(R.drawable.icon); // todo: create default icon
+            }*/
+            }
+            TextView fname = (TextView) v.findViewById(R.id.colTeamNameBP);
+            fname.setText(exerciseName);
+
+            TextView fDescr = (TextView) v.findViewById(R.id.colFIOBP);
+            fDescr.setText(exerciseDescr);
+            return (v);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i("Debug", "BestPlayers::onCreate()");
+/*
+---------------------------- on create------------------------------------------
+        setContentView(R.layout.activity_exercises_list);
+        ListView lvExList = (ListView) findViewById(R.id.listExercises);
+        db = new WorkoutDataBase(this);
+        mCursor = db.getAllExercises();
+
+        startManagingCursor(mCursor);
+        // Now create a new list adapter bound to the cursor.
+        BaseAdapter adapter = new CursorAdapterWithImage(this, // Context.
+                R.layout.exercise_item, // Specify the row template
+                // to use (here, two
+                // columns bound to the
+                // two retrieved cursor
+                // rows).
+                mCursor, // Pass in the cursor to bind to.
+                // Array of cursor columns to bind to.
+                new String [] {WorkoutDataBase.TE_IMAGE, WorkoutDataBase.TE_EX_NAME, WorkoutDataBase.TE_DESCRIPTION},
+                // Parallel array of which template objects to bind to those
+                // columns.
+                new int[] { R.id.tvItemExerciseImage, R.id.tvItemExcersizeName, R.id.tvItemExcersizeDescription
+                });
+
+
+        // Bind to our new adapter.
+        lvExList.setAdapter(adapter);
+----------------------------------------------------------------------
+*/
     }
 
     @Override
