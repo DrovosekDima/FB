@@ -100,6 +100,7 @@ public class BestPlayersTabFragment extends Fragment implements LoaderCallbacks<
 
         @Override
         public Cursor swapCursor(Cursor c) {
+            cursor = c;
             return super.swapCursor(c);
         }
 
@@ -113,7 +114,6 @@ public class BestPlayersTabFragment extends Fragment implements LoaderCallbacks<
                 row = inflater.inflate(R.layout.table_bestplayers_row, null);
             }
 
-            cursor = getCursor();
 
             if (cursor != null) {
                 cursor.moveToPosition(pos);

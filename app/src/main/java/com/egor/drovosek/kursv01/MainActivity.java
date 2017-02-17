@@ -229,6 +229,7 @@ public class MainActivity extends AppCompatActivity
                     // надо обновить данные на закладках
                      // -Stats
                      //  -BestPlayers
+                    //getSupportLoaderManager().getLoader(0).forceLoad();
                     break;
 
                 default:
