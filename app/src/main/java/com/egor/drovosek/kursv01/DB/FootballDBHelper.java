@@ -133,6 +133,65 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
         }
 
+    public int getNumberOfMatches(int season) throws SQLException
+    {
+        int numOfMatches = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "select COUNT(*) as numofmatches from matches where season="+ String.valueOf(season)+";";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+        if (mCursor !=null) {
+            mCursor.moveToFirst();
+
+            if(mCursor.getCount()>0) {
+                int colIndex = mCursor.getColumnIndex("numofmatches");
+                numOfMatches = mCursor.getInt(colIndex);
+            }
+        }
+
+        db.close();
+
+        return numOfMatches;
+    }
+
+    public int getLastCompleteRound(int season) throws SQLException
+    {
+        int lastRound = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "select round from matches where season="+ String.valueOf(season)+" AND status='COMPLETED' order BY round DESC;";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+        if (mCursor !=null) {
+            mCursor.moveToFirst();
+
+            if(mCursor.getCount()>0) {
+                int colIndex = mCursor.getColumnIndex("round");
+                lastRound = mCursor.getInt(colIndex);
+            }
+        }
+
+        return lastRound;
+    }
+
+    public int getFutureRounds(int season) throws SQLException
+    {
+        int lastRound = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        return lastRound;
+    }
+
+    public int getInProgressRounds(int season) throws SQLException
+    {
+        int lastRound = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "select COUNT(*) as numofmatches from matches where season="+ String.valueOf(season)+";";
+
+        return lastRound;
+    }
     /*---------------------------------------------
   возвращает курсор со всеми матчами за определенный год и тур
 
@@ -293,7 +352,8 @@ public class FootballDBHelper extends SQLiteOpenHelper
                     " WHERE " + TEAMS_TITLE + "='" + inTeamName + "'";
 
             Cursor mCursor = db.rawQuery(selectQuery, null);
-            if (mCursor !=null) {
+            if (mCursor !=null && mCursor.getCount()>0)
+            {
                 mCursor.moveToFirst();
                 return mCursor.getInt(mCursor.getColumnIndex(Schema.TEAMS_M_ID));
             }

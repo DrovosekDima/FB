@@ -31,6 +31,7 @@ import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleTabF
 import com.egor.drovosek.kursv01.MainWindowTabFragments.TableStats.TableTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ViewPagerAdapter;
 import com.egor.drovosek.kursv01.Misc.DataMinerWorkerThread;
+import com.egor.drovosek.kursv01.Misc.GrabMatchesWithGoalsRunnable;
 import com.egor.drovosek.kursv01.Misc.GrabTeamsRunnable;
 import com.egor.drovosek.kursv01.Misc.Team;
 
@@ -42,9 +43,12 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static final int GRAB_TEAM_COMPLETED = 1;
+    public static final int GRAB_MATCHES_COMPLETED = 2;
+
     //todo: create global class
     public static int gdSeason = 2016;
-    public static int gdNumberOfRounds = 6; //todo определить количество сезонов
+    public static int gdNumberOfRounds = 30; //todo определить количество сезонов
 
     //private SectionsPagerAdapter mSectionsPagerAdapter;
     private ProgressDialog progressState;
@@ -142,9 +146,9 @@ public class MainActivity extends AppCompatActivity
 
         dataMinerThread = new DataMinerWorkerThread("DataMinerThread", mUIHandler);
 
-        dataMinerThread.sendMessageToDataMinerHandler("Ping");
-
         dataMinerThread.postTask(new GrabTeamsRunnable(mUIHandler, getApplicationContext()));
+
+        dataMinerThread.postTask(new GrabMatchesWithGoalsRunnable(mUIHandler, getApplicationContext()));
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -207,12 +211,35 @@ public class MainActivity extends AppCompatActivity
     private Handler mUIHandler = new Handler() {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            switch(msg.what) {
+                case GRAB_TEAM_COMPLETED:
+                    Toast.makeText(MainActivity.this, "Got GRAB_TEAM_COMPLETE", Toast.LENGTH_SHORT).show();
 
-            Bundle bundle = msg.getData();
-            String dataFromMSG = bundle.getString("mydata");
+                    FootballDBHelper mDB = new FootballDBHelper(getApplicationContext());
+                    List<Team> teamsList = mDB.getListTeams(gdSeason);
+                    mDB.close();
+                    listDataChild.remove(listDataHeader.get(0));
+                    listDataChild.put(listDataHeader.get(0), teamsList);
+                    mMenuAdapter.notifyDataSetChanged();
+                    break;
 
-            Log.i("MAIN", "mUIHandler got message " + dataFromMSG);
-            Toast.makeText(MainActivity.this, dataFromMSG, Toast.LENGTH_SHORT).show();
+                case GRAB_MATCHES_COMPLETED:
+                    Toast.makeText(MainActivity.this, "Got GRAB_MATCHES_COMPLETED", Toast.LENGTH_SHORT).show();
+
+                    // надо обновить данные на закладках
+                     // -Stats
+                     //  -BestPlayers
+                    break;
+
+                default:
+                    Bundle bundle = msg.getData();
+                    String dataFromMSG = bundle.getString("mydata");
+
+                    Log.i("MAIN", "mUIHandler got message " + dataFromMSG);
+                    Toast.makeText(MainActivity.this, dataFromMSG, Toast.LENGTH_SHORT).show();
+
+                    break;
+            }
             //progressState.dismiss();
         }
     };

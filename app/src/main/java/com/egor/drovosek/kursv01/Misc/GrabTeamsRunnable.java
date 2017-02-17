@@ -8,9 +8,11 @@ import android.os.Message;
 import android.util.Log;
 
 import com.egor.drovosek.kursv01.DB.DataMiner;
+import com.egor.drovosek.kursv01.DB.FootballDBHelper;
+import com.egor.drovosek.kursv01.MainActivity;
 
 import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,6 +24,7 @@ public class GrabTeamsRunnable implements Runnable {
     private final String TAG = "GrabTeamsRunnable";
     Handler mUIHandler;
     Context mContext;
+    private FootballDBHelper mDB;
 
     public GrabTeamsRunnable(Handler inHandler, Context inContext)
     {
@@ -32,26 +35,23 @@ public class GrabTeamsRunnable implements Runnable {
     @Override
     public void run()
     {
-        Message msg = mUIHandler.obtainMessage();
-        Bundle bundle = new Bundle();
-
-        bundle.putString("mydata", "enter in GrabTeamsRunnable");
-        msg.setData(bundle);
-
-        mUIHandler.sendMessage(msg);
-
         Log.d(TAG, "new DataMiner");
+        mDB = new FootballDBHelper(mContext);
+        List<Team> teams = mDB.getListTeams(MainActivity.gdSeason);
+        mDB.close();
 
-        DataMiner dm = new DataMiner(mContext);
-        //todo add season;
-        Log.d(TAG, "grab team for ");
-        dm.grabTeam(2016);
-        Log.d(TAG, "finished: grab team");
+        if(teams.isEmpty()) {
+            Log.d(TAG, "grab team for ");
+            DataMiner dm = new DataMiner(mContext);
+            dm.grabTeam(MainActivity.gdSeason);
 
-        msg = mUIHandler.obtainMessage();
-        bundle = new Bundle();
-        bundle.putString("mydata", "Exit from GrabTeamsRunnable");
-        msg.setData(bundle);
-        mUIHandler.sendMessage(msg);
+            // сообщить MainActivity, что загрузка данных с сайта закончилась
+            // и можно обновить список комманд в меню
+            mUIHandler.sendEmptyMessage(MainActivity.GRAB_TEAM_COMPLETED);
+
+            Log.d(TAG, "finished: grab team");
+        }else
+            Log.d(TAG, "Grabbing skipped, there are " + teams.size() + "teams in DB.");
+
     };
 }

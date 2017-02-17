@@ -10,6 +10,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.egor.drovosek.kursv01.MainActivity;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -104,6 +106,7 @@ public class DataMiner {
         return;
     }
 
+    // populateTeam - это реализация grabTeam with AsyncTask
     public int populateTeam(int inSeason) {
     /*-------------------------------------------------
     - Идем по адресу
@@ -558,7 +561,18 @@ public class DataMiner {
         return RetCode;
     }
 
-    /*извлекаем данные  без AsyncTask, то есть в foreground*/
+
+    public void grabAllMatches(int inSeason)
+    {
+        int lastRound = mDB.getLastCompleteRound(inSeason);
+
+        for(int i = lastRound + 1; i < MainActivity.gdNumberOfRounds+1; i++)
+            populateScheduleWithGoalsAndPlayersFG(inSeason, i);
+
+        return;
+    }
+    /*извлекаем данные  без AsyncTask, то есть в foreground
+    * только для одного матча*/
     public int populateScheduleWithGoalsAndPlayersFG(int inSeason, int inRound)
     {
      /*==================================================================================
@@ -675,10 +689,13 @@ public class DataMiner {
             guest = teams.get(i).select(".md-right").text();
             homeAndGuestgoals = teams.get(i).select(".md-center").text();
 
-            String goals[] = homeAndGuestgoals.split(":");
+            // счет может выглядеть  "0:3 тех.пор."
+            String hgGoals[] = homeAndGuestgoals.split(":");
             //todo: добавить проверку на счет, если матч не начался то будет crash?
+            String  goals[] = hgGoals[0].split(" ");
             homeGoals = goals[0];
-            guestGoals = goals[1];
+            goals = hgGoals[1].split(" ");
+            guestGoals = goals[0];
 
             item = teams.get(i);
 
