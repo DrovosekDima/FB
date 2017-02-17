@@ -323,7 +323,8 @@ public class FootballDBHelper extends SQLiteOpenHelper
          */
 
         String selectQuery =
-                "SELECT p.first_name AS first_name, "    +
+                "SELECT p.P_ID AS _id, "    +
+                        "p.first_name AS first_name, "    +
                         "p.second_name AS second_name, " +
                         "t.title AS teamName, "          +
                         "t.emblem AS logo, "             +
