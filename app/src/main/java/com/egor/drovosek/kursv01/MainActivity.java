@@ -1,11 +1,11 @@
 package com.egor.drovosek.kursv01;
 
 import android.app.ProgressDialog;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
-import com.egor.drovosek.kursv01.DB.Schema;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.NewsTab.NewsTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleTabFragment;
@@ -38,7 +37,6 @@ import com.egor.drovosek.kursv01.Misc.Team;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_BESTPLAYER;
 
@@ -99,17 +97,17 @@ public class MainActivity extends AppCompatActivity
 
         // setting list adapter
         expandableList.setAdapter(mMenuAdapter);
-        /*expandableList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        expandableList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView,
                                         View view,
                                         int groupPosition,
                                         int childPosition, long id) {
                 Log.d("DEBUG", "submenu item clicked");
-                Toast.makeText(MainActivity.this,
+                /*Toast.makeText(MainActivity.this,
                         "Header: "+String.valueOf(groupPosition) +
                                 "\nItem: "+ String.valueOf(childPosition), Toast.LENGTH_SHORT)
-                        .show();
+                        .show();*/
                 view.setSelected(true);
                 if (view_Group != null) {
                     view_Group.setBackgroundColor(Color.parseColor("#ffffff"));
@@ -120,13 +118,32 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
         });
-        expandableList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+
+        expandableList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener()
+        {
             @Override
-            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+            public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long id)
+            {
+                switch (groupPosition)
+                {
+                    case 0: break; //teams
+
+                    case 1: //settings
+                        Intent modifySettings=new Intent(getApplicationContext(), SettingsActivity.class);
+                        startActivity(modifySettings);
+                        break;
+
+                    case 2: break; //feedback
+
+                    case 3: finish(); break; //exit
+
+                    default: break;
+                }
                 Log.d("DEBUG", "heading clicked");
                 return false;
             }
-        });*/
+        });
+
         // добавление списка комманд
         /*Menu navMenu = navigationView.getMenu();
         SubMenu subMenu = navMenu.getItem(0).getSubMenu();
@@ -211,8 +228,10 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private Handler mUIHandler = new Handler() {
-        public void handleMessage(Message msg) {
+    private Handler mUIHandler = new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
             super.handleMessage(msg);
             switch(msg.what) {
                 case GRAB_TEAM_COMPLETED:
@@ -234,7 +253,11 @@ public class MainActivity extends AppCompatActivity
                      //  -BestPlayers
                     Log.i(TAG, "mUIHandler: got GRAB_MATCHES_COMPLETED");
                     Log.i(TAG, "mUIHandler: forceLoad with loader #" + LOADER_BESTPLAYER);
-                    getSupportLoaderManager().getLoader(LOADER_BESTPLAYER).forceLoad();
+                    Loader lmL = getSupportLoaderManager().getLoader(LOADER_BESTPLAYER);
+                    if (lmL !=null)
+                       lmL.forceLoad();
+                    else
+                        Log.i(TAG, "mUIHandler: loader #" + LOADER_BESTPLAYER + " is not init. Skip it.");
                     break;
 
                 default:
@@ -257,7 +280,6 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_teams_) {
-            // Handle the camera action
         } else if (id == R.id.nav_settings_) {
 
         } else if (id == R.id.nav_exit) {

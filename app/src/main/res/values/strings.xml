@@ -11,4 +11,5 @@
     <string name="nav_settings">Настройки</string>
     <string name="nav_exit">Выход</string>
     <string name="nav_rate">Оценить приложение</string>
+    <string name="action_settings">Settings</string>
 </resources>
