@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_BESTPLAYER;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     ExpandableListView expandableList;
     List<String> listDataHeader;
     HashMap<String, List<Team>> listDataChild;
+    public String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -229,7 +232,9 @@ public class MainActivity extends AppCompatActivity
                     // надо обновить данные на закладках
                      // -Stats
                      //  -BestPlayers
-                    //getSupportLoaderManager().getLoader(0).forceLoad();
+                    Log.i(TAG, "mUIHandler: got GRAB_MATCHES_COMPLETED");
+                    Log.i(TAG, "mUIHandler: forceLoad with loader #" + LOADER_BESTPLAYER);
+                    getSupportLoaderManager().getLoader(LOADER_BESTPLAYER).forceLoad();
                     break;
 
                 default:

@@ -52,6 +52,7 @@ public class BestPlayersTabFragment extends Fragment implements LoaderCallbacks<
     ListView lvData;
     CursorAdapterWithImage scAdapter;
     public String TAG = "BestPlayer";
+    public static final int LOADER_BESTPLAYER = 1;
 
     static class MyCursorLoader extends CursorLoader {
 
@@ -66,16 +67,20 @@ public class BestPlayersTabFragment extends Fragment implements LoaderCallbacks<
         public Cursor loadInBackground() {
             Log.i("BestPlayer", "loadInBackground - enter");
             Cursor cursor = db.getBestPlayers(MainActivity.gdSeason);
+            Log.i("BestPlayer", "loadInBackground - Exit");
             return cursor;
         }
 
     }
 
+    //=============================begin implementation of callback
     public Loader<Cursor> onCreateLoader(int id, Bundle bndl) {
+        Log.i("BestPlayer", "onCreateLoader: with id=" + id);
         return new MyCursorLoader(context, mDB);
     }
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.i("BestPlayer", "onLoadFinished: loader id=" + loader.getId());
         Log.i("BestPlayer", "onLoadFinished - swap in a cursor with " + cursor.getCount() +
                             "elements.");
         scAdapter.swapCursor(cursor);
@@ -84,6 +89,7 @@ public class BestPlayersTabFragment extends Fragment implements LoaderCallbacks<
 
     public void onLoaderReset(Loader<Cursor> loader) {
     }
+    //=============================end  implementation of callback
 
     public class CursorAdapterWithImage extends SimpleCursorAdapter
     {
@@ -194,7 +200,8 @@ public class BestPlayersTabFragment extends Fragment implements LoaderCallbacks<
         lvData.setAdapter(scAdapter);
 
         // создаем лоадер для чтения данных
-        getActivity().getSupportLoaderManager().initLoader(0, null, this);
+        Log.i("Debug", "BestPlayers::создаем лоадер для чтения данных");
+        getActivity().getSupportLoaderManager().initLoader(LOADER_BESTPLAYER, null, this);
 
         /*TableLayout table = (TableLayout) view.findViewById(R.id.bestPlayersTable);
         View row;
@@ -310,3 +317,54 @@ public class BestPlayersTabFragment extends Fragment implements LoaderCallbacks<
         Log.i("Debug", "BestPlayers::onStop()");
     }
 }
+
+/*
+* public class ExampleFragmen extends Fragment { // Don't implement LoaderCallbacks here.
+
+    private static final int LOADER_A = 0;
+    private static final int LOADER_B = 1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        ...
+        getLoaderManager().restartLoader(LOADER_A, null, new LoaderACallbacks());
+        getLoaderManager().restartLoader(LOADER_B, null, new LoaderBCallbacks());
+        ...
+    }
+
+    public class LoaderACallbacks implements LoaderCallbacks<Cursor> {
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int loader, Bundle args) {
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+            // Set up adapter A here...
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+        }
+
+    }
+
+    public class LoaderBCallbacks implements LoaderCallbacks<Cursor> {
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int loader, Bundle args) {
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+            // Set up adapter B here...
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+        }
+
+    }
+
+}
+* */
