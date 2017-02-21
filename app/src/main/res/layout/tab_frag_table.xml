@@ -1,37 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:id="@+id/tab_table_layout">
+    android:orientation="vertical"
+    android:id="@+id/final_stats_layout">
 
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:scrollbars="none"
-        android:layout_weight="1">
-
-    <TableLayout
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:showDividers="middle"
-        android:id="@+id/statsTable"
-        android:divider="@android:color/holo_green_dark">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+        android:layout_height="25dp"
+        android:background="@drawable/group_border"
+        android:id="@+id/layoutStatsHeader">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:id="@+id/titleRank" />
+                android:id="@+id/titleRank"/>
 
             <ImageView
                 android:layout_width="0dp"
@@ -90,7 +77,10 @@
                 android:layout_weight="1"
                 android:id="@+id/titlePoints"
                 tools:textAlignment="center" />
-        </TableRow>
-    </TableLayout>
-    </ScrollView>
-</RelativeLayout>
+    </LinearLayout>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/lvStatsAll"/>
+
+</LinearLayout>

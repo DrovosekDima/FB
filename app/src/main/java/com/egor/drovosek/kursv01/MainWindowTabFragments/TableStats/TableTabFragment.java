@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -29,129 +30,80 @@ import android.widget.TextView;
 import com.egor.drovosek.kursv01.DB.DataMiner;
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.DB.Schema;
+import com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayerCursorAdapter;
+import com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayerLoaderCallbacks;
 import com.egor.drovosek.kursv01.Misc.Team;
 import com.egor.drovosek.kursv01.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_BESTPLAYER;
+import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_STATISTICS;
+
 
 public class TableTabFragment extends Fragment {
+
+    FootballDBHelper mDB;
+    public Context context;
+    ListView lvData;
+    public StatisticCursorAdapter scAdapter;
+    public String TAG = "StatisticsTAB";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("Debug", "TableStats::onCreate()");
+        Log.i(TAG, "TableStats::onCreate()");
+
+        context = getActivity().getApplicationContext();
+
+        mDB = new FootballDBHelper(context);
+
+        // формируем столбцы сопоставления
+
+        String[] from = new String[] {
+                "_id",
+                "teamName",
+                "teamLogo",
+                "numberofgames",
+                "wins",
+                "draws",
+                "losts",
+                "goalsfor",
+                "goalsagainst",
+                "points"};
+
+        int[] to = new int[] {
+                R.id.colRank,
+                R.id.colTeamName,
+                R.id.colLogo,
+                R.id.colPlays,
+                R.id.colWons,
+                R.id.colDraws,
+                R.id.colLosts,
+                R.id.colGoalsForAgainst,
+                R.id.colGoalsDifferecnces,
+                R.id.colPoints};
+
+        // создаем адаптер и настраиваем список
+        scAdapter = new StatisticCursorAdapter(context, R.layout.tab_frag_table, null, from, to);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Log.i("Debug", "TableStats::onCreateView()");
+        Log.i(TAG, "::onCreateView()");
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.tab_frag_table, container, false);
+        View view = inflater.inflate(R.layout.tab_frag_table, container, false);
 
-        Context context = getActivity().getApplicationContext();
+        lvData = (ListView) view.findViewById(R.id.lvStatsAll);
+        lvData.setAdapter(scAdapter);
 
-        TableLayout table = (TableLayout) view.findViewById(R.id.statsTable);
-        View row;
-
-        TextView columnRank;
-        ImageView columnLogo;
-        TextView columnTeamName;
-        TextView columnPlays;
-        TextView columnWins;
-        TextView columnDraws;
-        TextView columnLosts;
-        TextView columnPoints;
-        TextView columnGoalsForAgainst;
-        TextView columnDifference;
-
-        FootballDBHelper mDB = new FootballDBHelper(context);
-        Cursor curs = mDB.getStats(2016);
-                /*teamName, " +
-                " SUM(NOM) as numberofgames, " +
-                " SUM(Win) as wins, " +
-                " SUM(Draw) as draws, " +
-                " SUM(Lost) as losts, " +
-                "         SUM(score_in) as goalsfor, " +
-                " SUM(score_out) as goalsagainst, " +
-                " SUM(Win*3 + Draw) as points " +*/
-
-        if (curs != null && curs.getCount()>0)
-        {
-            int sizeCurs = curs.getCount();
-            boolean odd = true;
-
-            curs.moveToFirst();
-            for(int i =0; i< sizeCurs; i++)
-            {
-                row = getActivity().getLayoutInflater().inflate(R.layout.table_stats_row, null);
-
-                columnRank = (TextView) row.findViewById(R.id.colRank);
-                columnLogo = (ImageView) row.findViewById(R.id.colLogo);
-                columnTeamName = (TextView) row.findViewById(R.id.colTeamName);
-                columnPlays= (TextView) row.findViewById(R.id.colPlays);
-                columnWins= (TextView) row.findViewById(R.id.colWons);
-                columnDraws = (TextView) row.findViewById(R.id.colDraws);
-                columnLosts= (TextView) row.findViewById(R.id.colLosts);
-                columnPoints= (TextView) row.findViewById(R.id.colPoints);
-                columnGoalsForAgainst= (TextView) row.findViewById(R.id.colGoalsForAgainst);
-                columnDifference= (TextView) row.findViewById(R.id.colGoalsDifferecnces);
-
-                String teamName = curs.getString(curs.getColumnIndex("teamName"));
-                String numOfGames = curs.getString(curs.getColumnIndex("numberofgames"));
-                String wins = curs.getString(curs.getColumnIndex("wins"));
-                String draws = curs.getString(curs.getColumnIndex("draws"));
-                String losts = curs.getString(curs.getColumnIndex("losts"));
-
-                String gF = curs.getString(curs.getColumnIndex("goalsfor"));
-                String gA = curs.getString(curs.getColumnIndex("goalsagainst"));
-                String goalsForAg = "(" + gF + "-" +  gA + ")";
-
-                String points = curs.getString(curs.getColumnIndex("points"));
-
-                columnRank.setText(String.valueOf(i+1));
-                columnTeamName.setText(teamName);
-                columnPlays.setText(numOfGames);
-                columnWins.setText(wins);
-                columnDraws.setText(draws);
-                columnLosts.setText(losts);
-                columnPoints.setText(points);
-                columnGoalsForAgainst.setText(goalsForAg);
-                columnDifference.setText(String.valueOf(Integer.valueOf(gF) - Integer.valueOf(gA)));
-
-                byte[] byteLogo = curs.getBlob(curs.getColumnIndex("teamLogo"));
-                Bitmap logo = BitmapFactory.decodeByteArray(byteLogo, 0 ,byteLogo.length);
-                columnLogo.setImageBitmap(logo);
-
-                if (odd)
-                    row.setBackgroundColor(Color.LTGRAY);
-
-                odd = !odd;
-
-                table.addView(row);
-
-                curs.moveToNext();
-            }
-            curs.close();
-        }
-
-        mDB.close();
-
-
-        /*row = getActivity().getLayoutInflater().inflate(R.layout.table_stats_row, null);
-
-        columnRank = (TextView) row.findViewById(R.id.colRank);
-        columnLogo = (ImageView) row.findViewById(R.id.colLogo);
-        columnTeamName = (TextView) row.findViewById(R.id.colTeamName);
-
-        columnRank.setText("2");
-        columnLogo.setImageResource(R.drawable.bate);
-        columnTeamName.setText("БАТЭ");
-        table.addView(row);*/
-
+        // создаем лоадер для чтения данных
+        Log.i(TAG, "Stats::создаем лоадер для чтения статистики из базы данных");
+        getActivity().getSupportLoaderManager().initLoader(LOADER_STATISTICS, null,
+                new StatisticLoaderCallbacks(context, scAdapter));
         return view;
     }
 
@@ -161,7 +113,7 @@ public class TableTabFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Log.i("Debug", "TableStats::onStart()");
+        Log.i(TAG, "TableStats::onStart()");
     }
 
     /**
@@ -169,7 +121,7 @@ public class TableTabFragment extends Fragment {
      */
     @Override
     public void onResume() {
-        Log.i("Debug", "TableStats::onResume()");
+        Log.i(TAG, "TableStats::onResume()");
         super.onResume();
     }
 
@@ -181,7 +133,7 @@ public class TableTabFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("Debug", "TableStats::onDestroy()");
+        Log.i(TAG, "TableStats::onDestroy()");
     }
 
     /**
@@ -196,7 +148,7 @@ public class TableTabFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.i("Debug", "TableStats::onDestroyView()");
+        Log.i(TAG, "TableStats::onDestroyView()");
     }
 
     /**
@@ -205,7 +157,7 @@ public class TableTabFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.i("Debug", "TableStats::onPause()");
+        Log.i(TAG, "TableStats::onPause()");
     }
 
     /**
@@ -214,6 +166,6 @@ public class TableTabFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        Log.i("Debug", "TableStats::onStop()");
+        Log.i(TAG, "TableStats::onStop()");
     }
 }

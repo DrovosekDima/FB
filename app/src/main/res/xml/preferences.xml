@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="Sync Information"
+        android:title="Автобновление"
         android:key="sync_category">
 
         <CheckBoxPreference
             android:key="perform_sync"
-            android:summary="Enable or disable data sync"
-            android:title="Enable Auto Sync"
+            android:summary="Включить/выключить синхронизацию"
+            android:title="Включить автоматическую синхр."
             android:defaultValue="true"/>
 
         <ListPreference
             android:key="sync_interval"
-            android:title="Sync interval"
-            android:summary="Define how often sync will be performed"
+            android:title="Интервал обновления"
+            android:summary="Как часто обновлять данные"
             android:defaultValue="1000"
             android:entries="@array/updateInterval"
             android:entryValues="@array/updateIntervalValues"
@@ -22,44 +22,26 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Personal Informations"
-        android:key="personal_category">
+        android:title="Дополнительно"
+        android:key="misc_category">
 
 
         <EditTextPreference
-            android:key="full_name"
-            android:title="Name"
-            android:dialogTitle="Your Name"
-            android:dialogMessage="Enter Your Complete Name"
-            android:defaultValue="Drova"
+            android:key="season"
+            android:title="Сезон"
+            android:dialogTitle="Сезон"
+            android:dialogMessage="Введите год"
+            android:defaultValue="2016"
             android:inputType="textCapWords"
-            android:summary="Enter Your Complete Name" />
-        <EditTextPreference
-            android:key="email_address"
-            android:title="Email Address"
-            android:summary="Enter Your Email Address"
-            android:dialogTitle="Enter Your Email Address"
-            android:dialogMessage="Enter Your Email Address"
-            android:defaultValue=""
-            android:inputType="textEmailAddress"/>
+            android:summary="Введите год" />
+
+        <ListPreference
+            android:key="news_site"
+            android:title="Новостной сайт"
+            android:summary="Лента новостей"
+            android:defaultValue="http://football.by/news/belarus/"
+            android:entries="@array/news"
+            android:entryValues="@array/newsValues"/>
 
     </PreferenceCategory>
-
-
-    <PreferenceCategory
-        android:title="Customisations"
-        android:key="custom_category">
-
-
-        <RingtonePreference
-            android:key="notification_ringtone"
-            android:title="Notification Ringtone"
-            android:summary="Customise Notification Ringtone for you"
-            android:dialogTitle="Notification Ringtone"
-            android:dialogMessage="Customise Notification Ringtone for you"/>
-
-
-
-    </PreferenceCategory>
-
 </PreferenceScreen>

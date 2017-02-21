@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="updateInterval">
-        <item name="1000">Every 1 second</item>
-        <item name="5000">Every 5 seconds</item>
-        <item name="30000">Every 30 seconds</item>
-        <item name="60000">Every 1 minute</item>
+        <item name="5">Каждые 5 минут</item>
+        <item name="30">Каждые 30 минут</item>
+        <item name="60">Каждые час</item>
+        <item name="1440">Каждые сутки</item>
     </string-array>
 
     <string-array name="updateIntervalValues">
-        <item name="1000">1000</item>
-        <item name="5000">5000</item>
-        <item name="30000">30000</item>
-        <item name="60000">60000</item>
+        <item name="5">5</item>
+        <item name="30">30</item>
+        <item name="60">60</item>
+        <item name="1440">1440</item>
     </string-array>
+
+    <string-array name="news">
+        <item name="1">football.by</item>
+        <item name="2">pressball.by</item>
+        <item name="3">abff.by</item>
+    </string-array>
+
+    <string-array name="newsValues">
+        <item name="1">http://football.by/news/belarus/</item>
+        <item name="2">http://www.pressball.by/news/</item>
+        <item name="3">http://abff.by</item>
+    </string-array>
+
 </resources>

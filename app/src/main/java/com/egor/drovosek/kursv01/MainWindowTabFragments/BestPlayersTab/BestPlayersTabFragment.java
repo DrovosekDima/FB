@@ -19,7 +19,7 @@ import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.R;
 
 
-public class BestPlayersTabFragment extends Fragment/* implements LoaderCallbacks<Cursor>*/
+public class BestPlayersTabFragment extends Fragment
 {
 
     FootballDBHelper mDB;
@@ -34,100 +34,6 @@ public class BestPlayersTabFragment extends Fragment/* implements LoaderCallback
     {
         return context;
     }
-    /*public class BestPlayerLoaderCallbacks implements LoaderCallbacks<Cursor> {
-
-        @Override
-        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            Log.i("BestPlayerLoaderCall", "onCreateLoader id=" + id);
-            return new BestPlayerCursorLoader(context, mDB);
-        }
-
-        @Override
-        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-                Log.i("BestPlayerLoaderCall", "onLoadFinished: loader id=" + loader.getId());
-                Log.i("BestPlayerLoaderCall", "onLoadFinished - swap in a cursor with " + cursor.getCount() +
-                        " elements.");
-                scAdapter.swapCursor(cursor);
-                scAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onLoaderReset(Loader<Cursor> loader) {
-        }
-
-    }*/
-
-    /*public class BestPlayerCursorAdapter extends SimpleCursorAdapter
-    {
-        public Cursor cursor;
-        private Context context;
-
-        public BestPlayerCursorAdapter(Context inContext, int layout, Cursor inCursor, String[] from, int[] to)
-        {
-            super(inContext, layout, inCursor, from, to);
-            Log.i("BestPlayer", "BestPlayerCursorAdapter constructor with empty cursor");
-            cursor = inCursor;
-            context = inContext;
-        }
-
-        @Override
-        public Cursor swapCursor(Cursor c) {
-            cursor = c;
-            return super.swapCursor(c);
-        }
-
-        public View getView(int pos, View inView, ViewGroup parent)
-        {
-            View row = inView;
-
-            if (row == null)
-            {
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                row = inflater.inflate(R.layout.table_bestplayers_row, null);
-            }
-
-
-            if (cursor != null) {
-                cursor.moveToPosition(pos);
-
-                TextView columnFIO;
-                ImageView columnLogo;
-                TextView columnTeamName;
-                TextView columnGoals;
-                TextView columnRank;
-                String data;
-
-                columnFIO = (TextView) row.findViewById(R.id.colFIOBP);
-                columnLogo = (ImageView) row.findViewById(R.id.colLogoBP);
-                columnTeamName = (TextView) row.findViewById(R.id.colTeamNameBP);
-                columnRank = (TextView) row.findViewById(R.id.colRankBP);
-                columnGoals = (TextView) row.findViewById(R.id.colGoalsBP);
-
-                data = String.valueOf(pos + 1);
-                columnRank.setText(data);
-
-                data = cursor.getString(cursor.getColumnIndex("teamName"));
-                columnTeamName.setText(data);
-
-
-                data = cursor.getString(cursor.getColumnIndex("first_name")) + " " +
-                        cursor.getString(cursor.getColumnIndex("second_name"));
-                columnFIO.setText(data);
-
-                data = String.valueOf(cursor.getInt(cursor.getColumnIndex("numberOfGoals")));
-                columnGoals.setText(data);
-
-                byte[] byteLogo = cursor.getBlob(cursor.getColumnIndex("logo"));
-                Bitmap logo = BitmapFactory.decodeByteArray(byteLogo, 0, byteLogo.length);
-                columnLogo.setImageBitmap(logo);
-
-                if ((pos & 1) != 0) //odd
-                    row.setBackgroundColor(Color.LTGRAY);
-            }
-
-            return (row);
-        }
-    }*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -217,54 +123,3 @@ public class BestPlayersTabFragment extends Fragment/* implements LoaderCallback
         Log.i("Debug", "BestPlayers::onStop()");
     }
 }
-
-/*
-* public class ExampleFragmen extends Fragment { // Don't implement LoaderCallbacks here.
-
-    private static final int LOADER_A = 0;
-    private static final int LOADER_B = 1;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        ...
-        getLoaderManager().restartLoader(LOADER_A, null, new LoaderACallbacks());
-        getLoaderManager().restartLoader(LOADER_B, null, new LoaderBCallbacks());
-        ...
-    }
-
-    public class LoaderACallbacks implements LoaderCallbacks<Cursor> {
-
-        @Override
-        public Loader<Cursor> onCreateLoader(int loader, Bundle args) {
-        }
-
-        @Override
-        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-            // Set up adapter A here...
-        }
-
-        @Override
-        public void onLoaderReset(Loader<Cursor> loader) {
-        }
-
-    }
-
-    public class LoaderBCallbacks implements LoaderCallbacks<Cursor> {
-
-        @Override
-        public Loader<Cursor> onCreateLoader(int loader, Bundle args) {
-        }
-
-        @Override
-        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-            // Set up adapter B here...
-        }
-
-        @Override
-        public void onLoaderReset(Loader<Cursor> loader) {
-        }
-
-    }
-
-}
-* */

@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_BESTPLAYER;
+import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_STATISTICS;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -243,6 +244,15 @@ public class MainActivity extends AppCompatActivity
                     listDataChild.remove(listDataHeader.get(0));
                     listDataChild.put(listDataHeader.get(0), teamsList);
                     mMenuAdapter.notifyDataSetChanged();
+
+                    Loader lmLtemp = getSupportLoaderManager().getLoader(LOADER_STATISTICS);
+                    if (lmLtemp !=null) {
+                        Log.i(TAG, "mUIHandler: forceLoad with loader #" + LOADER_STATISTICS);
+                        lmLtemp.forceLoad();
+                    }
+                    else
+                        Log.i(TAG, "mUIHandler: loader #" + LOADER_STATISTICS + " is not init. Skip it.");
+
                     break;
 
                 case GRAB_MATCHES_COMPLETED:
@@ -258,6 +268,16 @@ public class MainActivity extends AppCompatActivity
                        lmL.forceLoad();
                     else
                         Log.i(TAG, "mUIHandler: loader #" + LOADER_BESTPLAYER + " is not init. Skip it.");
+
+
+                    Loader lmL2 = getSupportLoaderManager().getLoader(LOADER_STATISTICS);
+                    if (lmL2 !=null) {
+                        Log.i(TAG, "mUIHandler: forceLoad with loader #" + LOADER_STATISTICS);
+                        lmL2.forceLoad();
+                    }
+                    else
+                        Log.i(TAG, "mUIHandler: loader #" + LOADER_STATISTICS + " is not init. Skip it.");
+
                     break;
 
                 default:

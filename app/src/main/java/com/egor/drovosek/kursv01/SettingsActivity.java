@@ -11,14 +11,21 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import com.egor.drovosek.kursv01.R;
 
+import static com.egor.drovosek.kursv01.MainActivity.gdSeason;
+
 public class SettingsActivity extends PreferenceActivity implements
         OnSharedPreferenceChangeListener {
+
+    public static final String KEY_PREF_SYNC_INTERVAL =  "sync_interval";
+    public static final String KEY_PREF_SEASON = "season";
+    public static final String KEY_PREF_NEWSSITE ="news_site";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +64,18 @@ public class SettingsActivity extends PreferenceActivity implements
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                           String key) {
+        String value;
+        if (key.equals(KEY_PREF_SYNC_INTERVAL)) {
+            Preference connectionPref = findPreference(key);
+            value = sharedPreferences.getString(key, "");
+        }else if (key.equals(KEY_PREF_SEASON)) {
+            Preference connectionPref = findPreference(key);
+            value = sharedPreferences.getString(key, "");
+            gdSeason = Integer.valueOf(value);
+            Log.i("Settings", "Season was changed to " + value);
+            //todo refresh data if season was changed!!!!
+        }
+
         updatePrefSummary(findPreference(key));
     }
 

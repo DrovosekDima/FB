@@ -268,6 +268,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = "SELECT teamName, " +
+                " teamID as _id, " +
                 " teamLogo, " +
                 " SUM(NOM) as numberofgames, " +
                 " SUM(Win) as wins, " +
