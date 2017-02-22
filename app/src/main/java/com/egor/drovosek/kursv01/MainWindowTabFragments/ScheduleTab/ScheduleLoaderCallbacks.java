@@ -25,9 +25,9 @@ public class ScheduleLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cu
     ScheduleCursorAdapter mAdapter;
     String TAG1 = getClass().getSimpleName().toString();
 
-    public ScheduleLoaderCallbacks(Context inContext, BestPlayerCursorAdapter inAdapater) {
+    public ScheduleLoaderCallbacks(Context inContext, ScheduleCursorAdapter inAdapater) {
         mContext = inContext;
-        //mAdapter = inAdapater;
+        mAdapter = inAdapater;
     }
 
     @Override
@@ -87,6 +87,20 @@ public class ScheduleLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cu
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        // Called just before the cursor is about to be closed.
+        int id = loader.getId();
+        Log.d(TAG1, "onLoaderReset() for loader_id " + id);
+        if (id != -1) {
+            // child cursor
+            try {
+                mAdapter.setChildrenCursor(id, null);
+            } catch (NullPointerException e) {
+                Log.w(TAG1, "Adapter expired, try again on the next query: "
+                        + e.getMessage());
+            }
+        } else {
+            mAdapter.setGroupCursor(null);
+        }
     }
 
 }

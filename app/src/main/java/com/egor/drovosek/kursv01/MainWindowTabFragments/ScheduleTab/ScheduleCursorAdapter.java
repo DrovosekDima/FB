@@ -31,6 +31,7 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
     String TAG = getClass().getCanonicalName().toString();
     protected final HashMap<Integer, Integer> mGroupMap;
 
+
     //public ScheduleCursorAdapter(Context inContext, int layout, Cursor inCursor, String[] from, int[] to)
     public ScheduleCursorAdapter(Context inContext, int groupLayout, int childLayout, String[] groupFrom, int[] groupTo, String[] childrenFrom, int[] childrenTo)
     {
@@ -50,13 +51,13 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
     protected Cursor getChildrenCursor(Cursor groupCursor) {
         // Logic to get the child cursor on the basis of selected group.
         int groupPos = groupCursor.getPosition();
-        int groupId = groupCursor.getInt(groupCursor.getColumnIndex("_id"));
+        int groupId = groupCursor.getInt(groupCursor.getColumnIndex("round"));
 
         Log.d(TAG, "getChildrenCursor() for groupPos " + groupPos);
         Log.d(TAG, "getChildrenCursor() for groupId " + groupId);
 
-        /*mGroupMap.put(groupId, groupPos);
-        Loader<Cursor> loader = mActivity.getLoaderManager().getLoader(groupId);
+        mGroupMap.put(groupId, groupPos);
+        /*Loader<Cursor> loader = mActivity.getLoaderManager().getLoader(groupId);
         if (loader != null && !loader.isReset()) {
             mActivity.getLoaderManager()
                     .restartLoader(groupId, null, mActivity);

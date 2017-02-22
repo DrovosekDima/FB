@@ -27,6 +27,7 @@ import android.os.Message;
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.NewsTab.NewsTabFragment;
+import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.TableStats.TableTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ViewPagerAdapter;
@@ -179,7 +180,8 @@ public class MainActivity extends AppCompatActivity
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new TableTabFragment(), "ТАБЛИЦА");
-        adapter.addFragment(new ScheduleTabFragment(), "РАСПИСАНИЕ");
+        //adapter.addFragment(new ScheduleTabFragment(), "РАСПИСАНИЕ");
+        adapter.addFragment(new ScheduleFragment(), "РАСПИСАНИЕ");
         adapter.addFragment(new NewsTabFragment(), "НОВОСТИ");
         adapter.addFragment(new BestPlayersTabFragment(), "БОМБАРДИРЫ");
         viewPager.setAdapter(adapter);
