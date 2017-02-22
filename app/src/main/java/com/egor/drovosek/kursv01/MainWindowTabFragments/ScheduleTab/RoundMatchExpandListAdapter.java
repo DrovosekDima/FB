@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.egor.drovosek.kursv01.DB.DataMiner;
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
+import com.egor.drovosek.kursv01.MainActivity;
 import com.egor.drovosek.kursv01.Misc.Match;
 import com.egor.drovosek.kursv01.R;
 
@@ -33,19 +34,20 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
     private Context mContext;
 
-    private List<String> mGroup; // список туров (Тур 1 "1 апреля - 7 апреля")
-    private HashMap<String, List<Match>> mChild;
+    private List<String> mRounds; // список туров (Тур 1 "1 апреля - 7 апреля")
+    private HashMap<String, List<Match>> mMatches;
 
     //private ArrayList<GroupRound> rounds;
     static public Activity mActivity;
 
     public RoundMatchExpandListAdapter(Context context, Activity inActivity, /*ArrayList<GroupRound> groups*/
                                        List<String> groupData,
-                                       HashMap<String, List<Match>> childData) {
+                                       HashMap<String,
+                                       List<Match>> childData) {
         this.mContext = context;
         //this.rounds = groups;
-        this.mGroup = groupData;
-        this.mChild = childData;
+        this.mRounds = groupData;
+        this.mMatches = childData;
 
         this.mActivity = inActivity;
     }
@@ -54,7 +56,7 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
     public Object getChild(int groupPosition, int childPosition) {
         /*ArrayList<Match> chList = rounds.get(groupPosition).getMatches();
         return chList.get(childPosition);*/
-        return this.mChild.get(this.mGroup.get(groupPosition)).get(childPosition);
+        return this.mMatches.get(this.mRounds.get(groupPosition)).get(childPosition);
     }
 
     @Override
@@ -120,8 +122,8 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        String temp = this.mGroup.get(groupPosition);
-        List<Match> tempSub = this.mChild.get(temp);
+        String temp = this.mRounds.get(groupPosition);
+        List<Match> tempSub = this.mMatches.get(temp);
         if (tempSub != null)
             return tempSub.size();
         else
@@ -135,12 +137,12 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getGroup(int groupPosition) {
-        return mGroup.get(groupPosition);
+        return mRounds.get(groupPosition);
     }
 
     @Override
     public int getGroupCount() {
-        return mGroup.size();
+        return mRounds.size();
     }
 
     @Override
@@ -191,22 +193,22 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
         super.onGroupExpanded(groupPosition);
 
         //ArrayList<Match> match_list = rounds.get(groupPosition).getMatches();
-        String groupName = mGroup.get(groupPosition);
-        List<Match> match_list =  mChild.get(groupName);
+        String groupName = mRounds.get(groupPosition);
+        List<Match> match_list =  mMatches.get(groupName);
 
         /*begin версия с ProgressBar*/
         if (match_list == null || match_list.isEmpty()) {
 
             FootballDBHelper db = new FootballDBHelper(mContext);
-            Cursor temp = db.getMatchesSeasonRound(2016, groupPosition+1);
+            Cursor temp = db.getMatchesSeasonRound(MainActivity.gdSeason, groupPosition+1);
 
             if (temp.getCount() < 1) {
                 temp.close();
-                new GrabMatchesAndGoalsProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "1");
+                new GrabMatchesAndGoalsProgressTask(this.mContext).execute(String.valueOf(MainActivity.gdSeason), String.valueOf(groupPosition + 1), "1");
                 //"1" means go to site, parse data, put it into DB and finally get it from DB
             }
             else
-                new GrabMatchesAndGoalsProgressTask(this.mContext).execute(String.valueOf(2016), String.valueOf(groupPosition + 1), "0");
+                new GrabMatchesAndGoalsProgressTask(this.mContext).execute(String.valueOf(MainActivity.gdSeason), String.valueOf(groupPosition + 1), "0");
                 //"0" means just run QUERY
         }
         else
@@ -214,52 +216,6 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
             //nothing to do
         }
         /*end версия с ProgressBar*/
-
-        /*работает, но отображает список матчей после последующих открытия/закрытия
-        * причина: DataMiner.populateScheduleWithoutGoalsBG() запускает фоновый thread
-         * и выходит. А db.getMatchesSeasonRound() не ждет окончания фоновой задачи DataMinera.
-        * */
-        /*if (match_list == null || match_list.isEmpty())
-        {
-            FootballDBHelper db = new FootballDBHelper(context);
-            Cursor temp = db.getMatchesSeasonRound(2016, groupPosition+1);
-
-            if (temp.getCount() < 1) {
-                temp.close();
-                DataMiner dm = new DataMiner(context);
-                dm.populateScheduleWithoutGoalsBG(2016, groupPosition + 1);
-                temp = db.getMatchesSeasonRound(2016, groupPosition+1);
-            }
-
-            temp.moveToFirst();
-            match_list = new ArrayList<Match>();
-
-            for (int i = 0; i < temp.getCount(); i++)
-            {
-                    String homeTeam = temp.getString(temp.getColumnIndex("home_title"));
-                    String guestTeam = temp.getString(temp.getColumnIndex("guest_title"));
-                    int round = temp.getInt(temp.getColumnIndex("round"));
-                    int scoreHome = temp.getInt(temp.getColumnIndex("score_home"));
-                    int scoreGuest = temp.getInt(temp.getColumnIndex("score_guest"));
-                    String dateAndTime = temp.getString(temp.getColumnIndex("datem"));
-
-                    Match item = new Match();
-                    item.sethomeName(homeTeam);
-                    item.setHomeScore(String.valueOf(scoreHome));
-                    item.setGuestName(guestTeam);
-                    item.setGuestScore(String.valueOf(scoreGuest));
-                    item.setDateAndTime(dateAndTime);
-
-                    match_list.add(item);
-
-                    temp.moveToNext();
-            }
-
-             temp.close();
-
-            rounds.get(groupPosition).setMatches(match_list);
-            this.notifyDataSetChanged();
-        }*/
     }
     private class GrabMatchesProgressTask extends AsyncTask<String, String, Boolean> {
         private ProgressDialog dialog;
@@ -343,7 +299,7 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
                 temp.close();
 
                 //rounds.get(round-1).setMatches(match_list);
-                mChild.put(mGroup.get(round-1), matches);
+                mMatches.put(mRounds.get(round-1), matches);
                 db.close();
 
                 return true;
@@ -445,7 +401,7 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
                 temp.close();
 
                 //rounds.get(round-1).setMatches(match_list);
-                mChild.put(mGroup.get(round-1), matches);
+                mMatches.put(mRounds.get(round-1), matches);
 
                 return true;
             } catch (Exception e){

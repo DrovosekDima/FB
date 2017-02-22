@@ -185,6 +185,16 @@ public class FootballDBHelper extends SQLiteOpenHelper
         return lastRound;
     }
 
+    public Cursor getRounds(int season) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "select distinct round from matches where season="+ String.valueOf(season)+";";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        return mCursor;
+    }
+
     public int getInProgressRounds(int season) throws SQLException
     {
         int lastRound = 0;

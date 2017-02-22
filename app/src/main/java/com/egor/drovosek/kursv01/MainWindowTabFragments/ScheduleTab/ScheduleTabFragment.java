@@ -58,28 +58,6 @@ public class ScheduleTabFragment extends Fragment {
         //todo развернуть матчи определенного тура (последнего или первого)
         //ExpandList.expandGroup(0);
 
-        /*todo: временно. очистка teams table*/
-        //FootballDBHelper db = new FootballDBHelper(getActivity().getApplicationContext());
-        //db.ClearTable(Schema.TABLE_TEAMS);
-
-        //dm.populateScheduleWithoutGoalsBG(2016, 2);
-        /*Cursor temp = db.getMatchesSeason(2016);
-
-        temp.moveToFirst();
-
-        for (int i = 0; i < temp.getCount(); i++)
-        {
-            String homeTeam = temp.getString(temp.getColumnIndex("home_title"));
-            String guestTeam = temp.getString(temp.getColumnIndex("guest_title"));
-            int round = temp.getInt(temp.getColumnIndex("round"));
-            int scoreHome = temp.getInt(temp.getColumnIndex("score_home"));
-            int scoreGuest = temp.getInt(temp.getColumnIndex("score_guest"));
-            String dateAndTime = temp.getString(temp.getColumnIndex("datem"));
-            temp.moveToNext();
-        }
-
-        temp.close();*/
-
         // Inflate the layout for this fragment
         return view;
     }

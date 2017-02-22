@@ -29,6 +29,8 @@ public class BestPlayersTabFragment extends Fragment
     public String TAG = "BestPlayer";
     public static final int LOADER_BESTPLAYER = 1;
     public static final int LOADER_STATISTICS = 2;
+    public static final int LOADER_SCHED_ROUND = 3;
+    public static final int LOADER_SCHED_MATCHES = 4;
 
     public Context getContext()
     {

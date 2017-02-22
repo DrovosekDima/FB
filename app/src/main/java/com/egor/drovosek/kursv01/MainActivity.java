@@ -19,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +41,7 @@ import java.util.List;
 
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_BESTPLAYER;
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_STATISTICS;
+import static com.egor.drovosek.kursv01.R.string.title;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -73,6 +75,8 @@ public class MainActivity extends AppCompatActivity
         //getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.actionbar_title);
+        TextView mainTitle = (TextView) findViewById(R.id.main_title);
+        mainTitle.setText(getString(R.string.title) + " " +gdSeason);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
