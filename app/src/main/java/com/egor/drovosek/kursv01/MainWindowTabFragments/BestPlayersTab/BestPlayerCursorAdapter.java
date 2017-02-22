@@ -23,6 +23,7 @@ public class BestPlayerCursorAdapter extends SimpleCursorAdapter
 {
     public Cursor cursor;
     private Context context;
+    private static boolean odd = true;
 
     public BestPlayerCursorAdapter(Context inContext, int layout, Cursor inCursor, String[] from, int[] to)
     {
@@ -83,10 +84,14 @@ public class BestPlayerCursorAdapter extends SimpleCursorAdapter
             Bitmap logo = BitmapFactory.decodeByteArray(byteLogo, 0, byteLogo.length);
             columnLogo.setImageBitmap(logo);
 
-            if ((pos & 1) != 0) //odd
-            {
-                row.setBackgroundColor(Color.LTGRAY);
-            }
+            if (odd)
+               row.setBackgroundColor(Color.LTGRAY);
+            else
+               row.setBackgroundColor(Color.WHITE);
+
+
+
+            odd = !odd;
         }
 
         return (row);

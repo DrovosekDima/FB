@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity
     public static final int GRAB_MATCHES_COMPLETED = 2;
 
     //todo: create global class
-    public static int gdSeason = 2016;
-    public static int gdNumberOfRounds = 30; //todo определить количество сезонов
+    public static int gdSeason = 2015;
+    public static int gdNumberOfRounds = 26; //todo определить количество сезонов
 
     //private SectionsPagerAdapter mSectionsPagerAdapter;
     private ProgressDialog progressState;

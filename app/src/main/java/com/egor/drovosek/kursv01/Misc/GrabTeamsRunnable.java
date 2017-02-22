@@ -35,15 +35,16 @@ public class GrabTeamsRunnable implements Runnable {
     @Override
     public void run()
     {
-        Log.d(TAG, "new DataMiner");
+        Log.d(TAG, "new DataMiner ");
         mDB = new FootballDBHelper(mContext);
         List<Team> teams = mDB.getListTeams(MainActivity.gdSeason);
         mDB.close();
 
         if(teams.isEmpty()) {
-            Log.d(TAG, "grab team for ");
+            Log.d(TAG, "grab team for " + MainActivity.gdSeason + " season");
             DataMiner dm = new DataMiner(mContext);
-            dm.grabTeam(MainActivity.gdSeason);
+            //dm.grabTeam(MainActivity.gdSeason);
+            dm.grabTeamFromFootballby(MainActivity.gdSeason);
 
             // сообщить MainActivity, что загрузка данных с сайта закончилась
             // и можно обновить список комманд в меню

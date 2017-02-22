@@ -106,6 +106,62 @@ public class DataMiner {
         return;
     }
 
+    public void grabTeamFromFootballby(int inSeason)
+    {
+
+        String title;//Тут храним значение заголовка сайта
+        List<Element> teams;
+        String address; //адрес страницы http://football.by...
+        Element item;
+
+        Elements tables;
+
+        Document doc = null;//Здесь хранится будет разобранный html документ
+        Element elem;
+        try
+        {
+            //Считываем страницу http://football.by/stat/belarus/"inSeason"/teams/
+            String test = "http://football.by/stat/belarus/" + String.valueOf(inSeason) + "/teams";
+            doc = Jsoup.connect(test).get();
+        }
+        catch (IOException e)
+        {
+            //Если не получилось считать
+            e.printStackTrace();
+        }
+
+        //Если всё считалось, что вытаскиваем из считанного html документа заголовок
+        if (doc != null)
+            teams = doc.select(".st-teams-logo");
+        else {
+            title = "Ошибка";
+            return;
+        }
+
+
+        for (int i = 0; i < teams.size(); i++) {
+
+            Element itemTeam = teams.get(i);
+
+            Element image = itemTeam.select("img").first();
+            String imgUrl = image.absUrl("src");
+            Bitmap teamLogo = getImageBitmap(imgUrl);
+
+            String teamName = image.attr("title");
+
+            ContentValues teamTemp = mDB.createTeamValue(
+                    teamName,
+                    "",
+                    teamLogo,
+                    "",
+                    inSeason);
+
+            mDB.addTeam(teamTemp);
+        }
+
+        return;
+    }
+
     // populateTeam - это реализация grabTeam with AsyncTask
     public int populateTeam(int inSeason) {
     /*-------------------------------------------------
@@ -566,8 +622,12 @@ public class DataMiner {
     {
         int lastRound = mDB.getLastCompleteRound(inSeason);
 
-        for(int i = lastRound + 1; i < MainActivity.gdNumberOfRounds+1; i++)
+        Log.i(TAG, "grabAllMatches: last round in season " + inSeason +" is " + lastRound);
+
+        for(int i = lastRound + 1; i < MainActivity.gdNumberOfRounds+1; i++) {
             populateScheduleWithGoalsAndPlayersFG(inSeason, i);
+            Log.i(TAG, "grabAllMatches: round #" + i +" loaded.");
+        }
 
         return;
     }

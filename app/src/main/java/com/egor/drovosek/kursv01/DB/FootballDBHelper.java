@@ -133,6 +133,8 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
         }
 
+    /*
+    * Возвращает текущее количество матчей в базе данных */
     public int getNumberOfMatches(int season) throws SQLException
     {
         int numOfMatches = 0;
@@ -332,7 +334,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
                         "COUNT(g.match_id) AS numberOfGoals " +
                 " FROM players AS p " +
                 " JOIN goals AS g ON p.P_ID=g.player_id " +
-                " JOIN matches AS m ON g.match_id=m.M_ID AND m.season=2016 " +
+                " JOIN matches AS m ON g.match_id=m.M_ID AND m.season=" + String.valueOf(season) +
                 " JOIN teams AS t ON p.team_id=t.T_ID " +
                 " GROUP BY p.second_name " +
                 " ORDER BY numberOfGoals DESC;";
