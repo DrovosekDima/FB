@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.content.CursorLoader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +16,14 @@ import android.widget.ImageView;
 import android.widget.SimpleCursorTreeAdapter;
 import android.widget.TextView;
 
+import com.egor.drovosek.kursv01.Misc.Match;
 import com.egor.drovosek.kursv01.R;
 
 import java.util.HashMap;
+
+import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_SCHED_MATCHES;
+import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_SCHED_ROUND;
+import static com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleFragment.mLM;
 
 /**
  * Created by Drovosek on 20/02/2017.
@@ -40,6 +46,7 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
         cursor = null;
         context = inContext;
         mGroupMap = new HashMap<Integer, Integer>();
+        // пара <"номер тура", "позиция группы" >
     }
 
 /*    public Cursor swapCursor(Cursor c) {
@@ -57,15 +64,100 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
         Log.d(TAG, "getChildrenCursor() for groupId " + groupId);
 
         mGroupMap.put(groupId, groupPos);
-        /*Loader<Cursor> loader = mActivity.getLoaderManager().getLoader(groupId);
+
+        Loader<Cursor> loader = mLM.getLoader(groupId);
         if (loader != null && !loader.isReset()) {
-            mActivity.getLoaderManager()
-                    .restartLoader(groupId, null, mActivity);
+            mLM.restartLoader(groupId, null, ScheduleFragment.schedCallBack);
         } else {
-            mActivity.getLoaderManager().initLoader(groupId, null, mActivity);
-        }*/
+            mLM.initLoader(groupId, null, ScheduleFragment.schedCallBack);
+        }
 
         return null;
+    }
+
+    @Override
+    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+
+        String groupTitle = "Тур " + (groupPosition+1);
+
+        View row = convertView;
+        if (row == null)
+        {
+            LayoutInflater infalInflater = (LayoutInflater) this.context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            row = infalInflater.inflate(R.layout.group_round_item, parent, false);
+
+            ViewHolder holder = new ViewHolder();
+            View myView = row.findViewById(R.id.group_round_name);
+            holder.addView(myView);
+
+            row.setTag(holder);
+        }
+
+        // Get the stored ViewHolder that also contains our views
+        ViewHolder holder = (ViewHolder) row.getTag();
+
+        TextView groupRoundName = (TextView)holder.getView(R.id.group_round_name);
+        groupRoundName.setText(groupTitle);
+
+        return row;
+        //return super.getGroupView(groupPosition, isExpanded, convertView, parent);
+    }
+
+    @Override
+    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+
+        final Cursor element = (Cursor) getChild(groupPosition, childPosition);
+
+        View row = convertView;
+        if (row == null)
+        {
+            LayoutInflater infalInflater = (LayoutInflater) this.context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            row = infalInflater.inflate(R.layout.match_item, parent, false);
+
+            ViewHolder holder = new ViewHolder();
+            View myView = row.findViewById(R.id.homeTeamView);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.guestTeamView);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.matchScoreView);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.timeDateView);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.teamHomeImage);
+            holder.addView(myView);
+
+            myView = row.findViewById(R.id.teamGuestImage);
+            holder.addView(myView);
+
+            row.setTag(holder);
+        }
+
+        // Get the stored ViewHolder that also contains our views
+        ViewHolder holder = (ViewHolder) row.getTag();
+
+        TextView tvHome = (TextView) holder.getView(R.id.homeTeamView);
+        TextView tvGuest = (TextView) holder.getView(R.id.guestTeamView);
+        TextView tvScore = (TextView) holder.getView(R.id.matchScoreView);
+        TextView tvDateTime = (TextView) holder.getView(R.id.timeDateView);
+        ImageView ivHomeImage = (ImageView) holder.getView(R.id.teamHomeImage);
+        ImageView ivGuestImage = (ImageView) holder.getView(R.id.teamGuestImage);
+
+        tvHome.setText(element.gethomeName());
+        tvGuest.setText(element.getGuestName());
+        tvScore.setText(element.getScore());
+        tvDateTime.setText(element.getDateAndTime());
+        ivHomeImage.setImageBitmap(element.getHomeLogo());
+        ivGuestImage.setImageBitmap(element.getGuestLogo());
+
+        return row;
+        //return super.getChildView(groupPosition, childPosition, isLastChild, convertView, parent);
     }
 
     public View getView(int pos, View inView, ViewGroup parent)
@@ -128,5 +220,27 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
 
     public HashMap<Integer, Integer> getGroupMap() {
         return mGroupMap;
+    }
+
+    private class ViewHolder
+    {
+        private HashMap<Integer, View> storedViews = new HashMap<Integer, View>();
+
+        public ViewHolder()
+        {
+        }
+
+
+        public ViewHolder addView(View view)
+        {
+            int id = view.getId();
+            storedViews.put(id, view);
+            return this;
+        }
+
+        public View getView(int id)
+        {
+            return storedViews.get(id);
+        }
     }
 }

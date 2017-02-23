@@ -21,14 +21,16 @@ public class ScheduleMatchesCursorLoader extends CursorLoader {
 
     public ScheduleMatchesCursorLoader(Context context, int inRound) {
         super(context);
+        Log.i(TAG, "ScheduleMatchesCursorLoader constructor");
         mContext = context;
         db = new FootballDBHelper(mContext);
+        Log.i(TAG, "ScheduleMatchesCursorLoader round to load " + inRound);
         mRound = inRound;
     }
 
     @Override
     public Cursor loadInBackground() {
-        Log.i(TAG, "loadInBackground - enter");
+        Log.i(TAG, "loadInBackground MATCHES for round #" + mRound);
         Cursor cursor = db.getMatchesSeasonRound(MainActivity.gdSeason, mRound);
         String numOfMatches = "null";
         if (cursor != null)

@@ -188,7 +188,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
     public Cursor getRounds(int season) throws SQLException
     {
         SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "select distinct round from matches where season="+ String.valueOf(season)+";";
+        String selectQuery = "select distinct round, round as _id from matches where season="+ String.valueOf(season)+";";
 
         Cursor mCursor = db.rawQuery(selectQuery, null);
 
@@ -224,7 +224,8 @@ public class FootballDBHelper extends SQLiteOpenHelper
                     + " JOIN " + TABLE_TEAMS + " AS GUEST ON m." + MATCHES_HOME_TEAM_ID + "=GUEST." + TEAMS_M_ID
                     + " WHERE m." + MATCHES_SEASON + "=" + String.valueOf(season);*/
 
-        String selectQuery = "SELECT m.round, " +
+        String selectQuery = "SELECT m.round as _id, " +
+                "m.round, " +
                 "HOME.title AS home_title, " +
                 "HOME.emblem AS homeLogo, " +
                 "GUEST.title AS guest_title, " +

@@ -46,7 +46,9 @@ public class ScheduleLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cu
             // child cursor
             Log.i(TAG1, "child. rounds loader");
             HashMap<Integer, Integer> groupMap = mAdapter.getGroupMap();
-            cl = new ScheduleMatchesCursorLoader(mContext, groupMap.get(id)); //TODO replace 1 with round #
+            int inRound = id;//groupMap.get(id);
+            Log.i(TAG1, "child. round #" + inRound);
+            cl = new ScheduleMatchesCursorLoader(mContext, inRound); //TODO replace 1 with round #
         }
 
         return cl;
@@ -64,7 +66,12 @@ public class ScheduleLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cu
 
         Log.d(TAG1, "onLoadFinished() for loader_id " + id);
 
-        if (id == LOADER_SCHED_MATCHES) {
+        if (id == LOADER_SCHED_ROUND)
+        {
+            Log.d(TAG1, "onLoadFinished() num GROUPS = " + data.getCount());
+            mAdapter.setGroupCursor(data);
+        }else
+        {
             // child cursor
             if (!data.isClosed()) {
                 Log.d(TAG1, "data.getCount() " + data.getCount());
@@ -80,8 +87,6 @@ public class ScheduleLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cu
                                     + e.getMessage());
                 }
             }
-        } else {
-            mAdapter.setGroupCursor(data);
         }
     }
 
@@ -90,7 +95,11 @@ public class ScheduleLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cu
         // Called just before the cursor is about to be closed.
         int id = loader.getId();
         Log.d(TAG1, "onLoaderReset() for loader_id " + id);
-        if (id != -1) {
+        if (id == LOADER_SCHED_ROUND) {
+            mAdapter.setGroupCursor(null);
+        }
+        else
+        {
             // child cursor
             try {
                 mAdapter.setChildrenCursor(id, null);
@@ -98,8 +107,6 @@ public class ScheduleLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cu
                 Log.w(TAG1, "Adapter expired, try again on the next query: "
                         + e.getMessage());
             }
-        } else {
-            mAdapter.setGroupCursor(null);
         }
     }
 
