@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.egor.drovosek.kursv01.Misc.Match;
 import com.egor.drovosek.kursv01.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_SCHED_MATCHES;
@@ -107,9 +108,25 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
 
-        final Cursor element = (Cursor) getChild(groupPosition, childPosition);
+        final Cursor temp = (Cursor) getChild(groupPosition, childPosition);
 
         View row = convertView;
+
+        temp.moveToPosition(childPosition);
+
+        String homeTeam = temp.getString(temp.getColumnIndex("home_title"));
+        String guestTeam = temp.getString(temp.getColumnIndex("guest_title"));
+        int round = temp.getInt(temp.getColumnIndex("round"));
+        int scoreHome = temp.getInt(temp.getColumnIndex("score_home"));
+        int scoreGuest = temp.getInt(temp.getColumnIndex("score_guest"));
+        String dateAndTime = temp.getString(temp.getColumnIndex("datem"));
+
+        byte[] homeLogoBlob  = temp.getBlob(temp.getColumnIndex("homeLogo"));
+        Bitmap homeLogo    = BitmapFactory.decodeByteArray(homeLogoBlob, 0 ,homeLogoBlob.length);
+
+        byte[] guestLogoBlob  = temp.getBlob(temp.getColumnIndex("guestLogo"));
+        Bitmap guestLogo    = BitmapFactory.decodeByteArray(guestLogoBlob, 0 ,guestLogoBlob.length);
+
         if (row == null)
         {
             LayoutInflater infalInflater = (LayoutInflater) this.context
@@ -149,12 +166,16 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
         ImageView ivHomeImage = (ImageView) holder.getView(R.id.teamHomeImage);
         ImageView ivGuestImage = (ImageView) holder.getView(R.id.teamGuestImage);
 
-        tvHome.setText(element.gethomeName());
-        tvGuest.setText(element.getGuestName());
-        tvScore.setText(element.getScore());
-        tvDateTime.setText(element.getDateAndTime());
-        ivHomeImage.setImageBitmap(element.getHomeLogo());
-        ivGuestImage.setImageBitmap(element.getGuestLogo());
+        tvHome.setText(homeTeam);
+        tvGuest.setText(guestTeam);
+        if(scoreHome == -1)
+            tvScore.setText("-:-"); //матч не начался
+        else
+            tvScore.setText(scoreHome + " : " + scoreGuest);
+
+        tvDateTime.setText(dateAndTime);
+        ivHomeImage.setImageBitmap(homeLogo);
+        ivGuestImage.setImageBitmap(guestLogo);
 
         return row;
         //return super.getChildView(groupPosition, childPosition, isLastChild, convertView, parent);

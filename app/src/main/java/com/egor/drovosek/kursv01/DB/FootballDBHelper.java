@@ -301,6 +301,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
                 "        JOIN teams AS HOME ON m.home_team_id=HOME.T_ID " +
                 "        JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID " +
                 "     WHERE m.season=" + String.valueOf(season) +
+                "          AND m.status='COMPLETED' " +
                 "     GROUP BY HOME.title " +
                 "    union " +
                 "    SELECT m.M_ID, GUEST.T_ID as teamID, GUEST.title as teamName, GUEST.emblem as teamLogo, SUM(m.score_guest) AS score_in, SUM(m.score_home) AS score_out, " +
@@ -312,6 +313,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
                 "          JOIN teams AS HOME ON m.home_team_id=HOME.T_ID " +
                 "          JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID " +
                 "        WHERE m.season=" + String.valueOf(season) +
+                "          AND m.status='COMPLETED' " +
                 "          GROUP BY GUEST.title " +
                 "      ) " +
                 "    GROUP BY teamName ORDER BY points DESC;";

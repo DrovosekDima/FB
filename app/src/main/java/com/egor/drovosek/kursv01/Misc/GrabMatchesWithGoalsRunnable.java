@@ -41,6 +41,9 @@ public class GrabMatchesWithGoalsRunnable implements Runnable {
 
         Log.d(TAG, "grab team for ");
         DataMiner dm = new DataMiner(mContext);
+
+        //grabAllMatches - скачивает данные с football.by и кладет их в базу
+        // перед скачиванием проверяет есть ли загруженные матчи и скачивает только новые
         dm.grabAllMatches(MainActivity.gdSeason);
 
         // сообщить MainActivity, что загрузка данных с сайта закончилась

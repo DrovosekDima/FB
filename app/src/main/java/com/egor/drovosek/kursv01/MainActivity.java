@@ -2,8 +2,11 @@ package com.egor.drovosek.kursv01;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
@@ -41,8 +44,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_BESTPLAYER;
+import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_SCHED_ROUND;
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_STATISTICS;
 import static com.egor.drovosek.kursv01.R.string.title;
+import static com.egor.drovosek.kursv01.SettingsActivity.KEY_PREF_SEASON;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -51,8 +56,9 @@ public class MainActivity extends AppCompatActivity
     public static final int GRAB_MATCHES_COMPLETED = 2;
 
     //todo: create global class
-    public static int gdSeason = 2015;
-    public static int gdNumberOfRounds = 26; //todo определить количество сезонов
+    public static int gdSeason = 2016;
+    public static int gdNumberOfRounds = 0; //todo определить количество сезонов
+    public static UIHandler mUIHandler;
 
     //private SectionsPagerAdapter mSectionsPagerAdapter;
     private ProgressDialog progressState;
@@ -65,10 +71,17 @@ public class MainActivity extends AppCompatActivity
     List<String> listDataHeader;
     HashMap<String, List<Team>> listDataChild;
     public String TAG = "MainActivity";
+    public static DataMinerWorkerThread dataMinerThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //SharedPreferences settings = getSharedPreferences("preferences", MODE_PRIVATE);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String value = sharedPrefs.getString(KEY_PREF_SEASON, "");
+        gdSeason = Integer.valueOf(value);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -150,11 +163,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        // добавление списка комманд
-        /*Menu navMenu = navigationView.getMenu();
-        SubMenu subMenu = navMenu.getItem(0).getSubMenu();
-        subMenu.add("Test1");*/
-
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         //mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -168,7 +176,7 @@ public class MainActivity extends AppCompatActivity
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        DataMinerWorkerThread dataMinerThread;
+        mUIHandler = new UIHandler();
 
         dataMinerThread = new DataMinerWorkerThread("DataMinerThread", mUIHandler);
 
@@ -235,8 +243,8 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private Handler mUIHandler = new Handler()
-    {
+    //public Handler mUIHandler = new Handler()
+    public class UIHandler extends Handler{
         public void handleMessage(Message msg)
         {
             super.handleMessage(msg);
@@ -283,6 +291,17 @@ public class MainActivity extends AppCompatActivity
                     }
                     else
                         Log.i(TAG, "mUIHandler: loader #" + LOADER_STATISTICS + " is not init. Skip it.");
+
+                    Loader lmL3 = getSupportLoaderManager().getLoader(LOADER_SCHED_ROUND);
+                    if (lmL3 !=null) {
+                        Log.i(TAG, "mUIHandler: forceLoad with loader #" + LOADER_SCHED_ROUND);
+                        lmL3.forceLoad();
+                    }
+                    else
+                        Log.i(TAG, "mUIHandler: loader #" + LOADER_SCHED_ROUND + " is not init. Skip it.");
+
+                    TextView mainTitle = (TextView) findViewById(R.id.main_title);
+                    mainTitle.setText(getString(R.string.title) + " " +gdSeason);
 
                     break;
 

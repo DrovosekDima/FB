@@ -26,6 +26,8 @@ import java.sql.Time;
 import java.util.*;
 
 import static com.egor.drovosek.kursv01.DB.Schema.STATUS_COMPLETED;
+import static com.egor.drovosek.kursv01.DB.Schema.STATUS_FUTURE;
+import static com.egor.drovosek.kursv01.MainActivity.gdNumberOfRounds;
 
 /**
  * Created by Drovosek on 31/01/2017.
@@ -624,10 +626,14 @@ public class DataMiner {
 
         Log.i(TAG, "grabAllMatches: last round in season " + inSeason +" is " + lastRound);
 
-        for(int i = lastRound + 1; i < MainActivity.gdNumberOfRounds+1; i++) {
-            populateScheduleWithGoalsAndPlayersFG(inSeason, i);
+        int ret = 0;
+        int i = 0;
+        //for(int i = lastRound + 1; i < MainActivity.gdNumberOfRounds+1; i++) {
+        for(i = lastRound + 1; ret != -1; i++) {
+            ret = populateScheduleWithGoalsAndPlayersFG(inSeason, i);
             Log.i(TAG, "grabAllMatches: round #" + i +" loaded.");
         }
+        gdNumberOfRounds = i-1;
 
         return;
     }
@@ -663,7 +669,7 @@ public class DataMiner {
         List<Element> matches;
         String address; //адрес страницы http://football.by...
         Element item;
-        Elements teams;
+        Elements teams = null;
 
         //todo: добавить проверку есть ли такие данные в таблице
         //
@@ -683,6 +689,7 @@ public class DataMiner {
         {
             //Если не получилось считать
             e.printStackTrace();
+            return -1;
         }
 
         //Если всё считалось, что вытаскиваем из считанного html документа заголовок
@@ -740,22 +747,38 @@ public class DataMiner {
         int playerID;
         int homeTeamID;
         int guestTeamID;
+        String status = STATUS_COMPLETED;
+
+        if(teams == null || teams.size() < 1)
+            return -1;
 
         while (i < teams.size())
         {
+            status = STATUS_COMPLETED;
+
             String homeAndGuestgoals;
 
             home = teams.get(i).select(".md-left").text();
             guest = teams.get(i).select(".md-right").text();
             homeAndGuestgoals = teams.get(i).select(".md-center").text();
-
-            // счет может выглядеть  "0:3 тех.пор."
-            String hgGoals[] = homeAndGuestgoals.split(":");
-            //todo: добавить проверку на счет, если матч не начался то будет crash?
-            String  goals[] = hgGoals[0].split(" ");
-            homeGoals = goals[0];
-            goals = hgGoals[1].split(" ");
-            guestGoals = goals[0];
+            if(homeAndGuestgoals.compareTo("-:-") == 0)
+            {
+                /*матч не начался
+                    Днепр (Могилев) -:- Динамо (Минск)
+                 */
+                homeGoals = "-1";
+                guestGoals = "-1";
+                status = STATUS_FUTURE;
+            }
+            else {
+                // счет может выглядеть  "0:3 тех.пор."
+                String hgGoals[] = homeAndGuestgoals.split(":");
+                //todo: добавить проверку на счет, если матч не начался то будет crash?
+                String goals[] = hgGoals[0].split(" ");
+                homeGoals = goals[0];
+                goals = hgGoals[1].split(" ");
+                guestGoals = goals[0];
+            }
 
             item = teams.get(i);
 
@@ -763,25 +786,32 @@ public class DataMiner {
             {
                 List<Element> innerElem = item.select(".matchdesc");
 
+                if (innerElem.size() < 3)
+                    return -1; //форма на сайте не полная, просто выходим
+
                 dateTime = innerElem.get(1).select(".md-wideleft").text();
                 onSite = innerElem.get(1).select(".md-wideright").text();
 
-                Elements homeGoalsList = innerElem.get(2).select(".md-wideleft");
-
-                Elements playersName = homeGoalsList.get(0).children();
-
-                homeGoalsPlayers.clear();
-                for(int cPl = 0; cPl < playersName.size(); cPl++)
-                    homeGoalsPlayers.add(playersName.get(cPl).text());
-
-                Elements guestGoalsList = innerElem.get(2).select(".md-wideright");
-
-                playersName = guestGoalsList.get(0).children();
-
                 guestGoalsPlayers.clear();
-                for(int cPl = 0; cPl < playersName.size(); cPl++)
-                    guestGoalsPlayers.add(playersName.get(cPl).text()); // выглядит как: "4' Александр Юшин"
-                                                                        // надо выделить время, firstName and secondName
+                homeGoalsPlayers.clear();
+
+                //есть голы
+                if(innerElem.size()>2) {
+                    Elements homeGoalsList = innerElem.get(2).select(".md-wideleft");
+
+                    Elements playersName = homeGoalsList.get(0).children();
+
+                    for (int cPl = 0; cPl < playersName.size(); cPl++)
+                        homeGoalsPlayers.add(playersName.get(cPl).text());
+
+                    Elements guestGoalsList = innerElem.get(2).select(".md-wideright");
+
+                    playersName = guestGoalsList.get(0).children();
+
+                    for (int cPl = 0; cPl < playersName.size(); cPl++)
+                        guestGoalsPlayers.add(playersName.get(cPl).text()); // выглядит как: "4' Александр Юшин"
+                    // надо выделить время, firstName and secondName
+                }
 
             }
 
@@ -797,7 +827,7 @@ public class DataMiner {
                         String.valueOf(inRound),
                         dateTime,
                         onSite,
-                        STATUS_COMPLETED);
+                        status);
 
                 mDB.addMatch(matchTemp);
                 // получить матч ID, который будет использоваться при добавлении гола в таблицу
