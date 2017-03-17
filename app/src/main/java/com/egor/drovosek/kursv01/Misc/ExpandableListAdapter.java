@@ -1,4 +1,4 @@
-package com.egor.drovosek.kursv01;
+package com.egor.drovosek.kursv01.Misc;
 
 /**
  * Created by Drovosek on 1/25/2017.
@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.egor.drovosek.kursv01.Misc.Team;
+import com.egor.drovosek.kursv01.R;
 
 import java.util.HashMap;
 import java.util.List;

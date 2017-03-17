@@ -49,6 +49,7 @@ public class TableTabFragment extends Fragment {
     ListView lvData;
     public StatisticCursorAdapter scAdapter;
     public String TAG = "StatisticsTAB";
+    String team;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

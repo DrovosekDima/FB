@@ -125,11 +125,51 @@ public class FootballDBHelper extends SQLiteOpenHelper
                     + " JOIN " + TABLE_TEAMS + " AS GUEST ON m." + MATCHES_HOME_TEAM_ID + "=GUEST." + TEAMS_M_ID
                     + " WHERE m." + MATCHES_SEASON + "=" + String.valueOf(season);*/
 
-            String selectQuery = "SELECT m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+ String.valueOf(season)+";";
+            String selectQuery = "SELECT m.round as _id, m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+ String.valueOf(season)+";";
 
             Cursor mCursor = db.rawQuery(selectQuery, null);
 
          return mCursor;
+
+        }
+        /*---------------------------------------------
+        возвращает курсор со всеми матчами за определенный год, для указанной комманды
+
+        SELECT m.round, HOME.title, GUEST.title, m.score_home, m.score_guest, m.datem, m.place
+        FROM matches AS m
+        JOIN teams AS HOME ON m.home_team_id=HOME.T_ID
+        JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID
+        where m.season=2016;
+        ---------------------------------------------*/
+        public Cursor getMatchesSeason(int season, String teamName) throws SQLException
+        {
+            SQLiteDatabase db = this.getReadableDatabase();
+
+            /*String selectQuery = "SELECT m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location "
+                    + "FROM "
+                    + TABLE_MATCHES + " AS m "
+                    + " JOIN " + TABLE_TEAMS + " AS HOME ON m." + MATCHES_HOME_TEAM_ID + "=HOME." + TEAMS_M_ID
+                    + " JOIN " + TABLE_TEAMS + " AS GUEST ON m." + MATCHES_HOME_TEAM_ID + "=GUEST." + TEAMS_M_ID
+                    + " WHERE m." + MATCHES_SEASON + "=" + String.valueOf(season)
+                    + " and (HOME.title='teamName' or GUEST.title='teamName');"*/
+
+            //String selectQuery = "SELECT m.round as _id, m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+ String.valueOf(season) + " and (HOME.title='"+teamName+"' or GUEST.title='"+teamName+"');";
+            String selectQuery = "SELECT m.round as _id, " +
+                    "m.round, " +
+                    "HOME.title AS home_title, " +
+                    "HOME.emblem AS homeLogo, " +
+                    "GUEST.title AS guest_title, " +
+                    "GUEST.emblem AS guestLogo, " +
+                    "m.score_home, " +
+                    "m.score_guest, " +
+                    "m.datem, " +
+                    "m.location " +
+                    "FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+String.valueOf(season)+
+                    " and (HOME.title='"+teamName+"' or GUEST.title='"+teamName+"');";
+
+            Cursor mCursor = db.rawQuery(selectQuery, null);
+
+            return mCursor;
 
         }
 

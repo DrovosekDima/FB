@@ -29,6 +29,12 @@ public class StatisticCursorLoader extends CursorLoader {
     public Cursor loadInBackground() {
         Log.i(TAG, "loadInBackground - enter");
         Cursor cursor = db.getStats(MainActivity.gdSeason);
+
+        String numOfTeams = "null";
+        if (cursor != null)
+            numOfTeams = String.valueOf(cursor.getCount());
+
+        Log.i(TAG, "loadInBackground: num of teams = " + numOfTeams);
         Log.i(TAG, "loadInBackground - Exit");
         return cursor;
     }

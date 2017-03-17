@@ -5,13 +5,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.Loader;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -31,10 +35,13 @@ import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.NewsTab.NewsTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleFragment;
-import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.TableStats.TableTabFragment;
+import com.egor.drovosek.kursv01.MainWindowTabFragments.TeamMatchesTab.TeamMatchesFragment;
+import com.egor.drovosek.kursv01.MainWindowTabFragments.TeamStaffTab.TeamStaffFragment;
+import com.egor.drovosek.kursv01.MainWindowTabFragments.TeamSummaryTab.TeamSummaryFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ViewPagerAdapter;
 import com.egor.drovosek.kursv01.Misc.DataMinerWorkerThread;
+import com.egor.drovosek.kursv01.Misc.ExpandableListAdapter;
 import com.egor.drovosek.kursv01.Misc.GrabMatchesWithGoalsRunnable;
 import com.egor.drovosek.kursv01.Misc.GrabTeamsRunnable;
 import com.egor.drovosek.kursv01.Misc.Team;
@@ -46,7 +53,6 @@ import java.util.List;
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_BESTPLAYER;
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_SCHED_ROUND;
 import static com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlayersTabFragment.LOADER_STATISTICS;
-import static com.egor.drovosek.kursv01.R.string.title;
 import static com.egor.drovosek.kursv01.SettingsActivity.KEY_PREF_SEASON;
 
 public class MainActivity extends AppCompatActivity
@@ -63,9 +69,11 @@ public class MainActivity extends AppCompatActivity
     //private SectionsPagerAdapter mSectionsPagerAdapter;
     private ProgressDialog progressState;
     private ViewPager mViewPager;
+    public ActionBarDrawerToggle toggle;
 
     View view_Group;
     private DrawerLayout mDrawerLayout;
+    TabLayout tabLayout;
     ExpandableListAdapter mMenuAdapter;
     ExpandableListView expandableList;
     List<String> listDataHeader;
@@ -94,7 +102,7 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        toggle = new ActionBarDrawerToggle(
                 this,
                 drawer,
                 toolbar,
@@ -134,6 +142,67 @@ public class MainActivity extends AppCompatActivity
                 view_Group = view;
                 view_Group.setBackgroundColor(Color.parseColor("#DDDDDD"));
                 mDrawerLayout.closeDrawers();
+
+                //* - отключить Drawer
+                //mDrawerLayout.isDrawerVisible((DrawerLayout) findViewById(R.id.drawer_layout));
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+                toggle.setDrawerIndicatorEnabled(false);
+
+                // получить имя комманды
+                //ExpandableListAdapter tempMenuAdapter =  (ExpandableListAdapter)expandableList.getAdapter();
+                Team element = (Team) mMenuAdapter.getChild(groupPosition, childPosition);
+
+                // Поменять заголовок
+                TextView mainTitle = (TextView) findViewById(R.id.main_title);
+                mainTitle.setText(element.getTitle());
+
+                /*Переключение на экран с информацией о комманде
+                * - удалить предыдущие вкладки;
+                * - создать новые вкладки с инфой о комманде
+                * - уведомить, что адаптер изменился
+                * - отключить Drawer
+                * - добавить "Back" кнопку вместо Drawer*/
+
+                ViewPagerAdapter adapter = (ViewPagerAdapter) mViewPager.getAdapter();
+
+                // 1. удалить предыдущие вкладки;
+
+                int count = adapter.getCount();
+                for (int i = (count-1) ; i > -1; i--) {
+                    Log.d("DEBUG", "Del tab " + i);
+
+                    Object obj = adapter.instantiateItem(mViewPager, i);
+
+                    if (obj != null) {
+                        adapter.destroyItem(mViewPager, i, obj);
+                    }
+
+                }
+
+                adapter.notifyDataSetChanged();
+
+
+                // 2. создать новые вкладки с инфой о комманде
+
+                Bundle args = new Bundle();
+                args.putString("teamName", element.getTitle());
+
+                Fragment fTeamSummary = new TeamSummaryFragment();
+                Fragment fTeamMatches = new TeamMatchesFragment();
+                Fragment fTable = new TableTabFragment();
+                Fragment fTeamStaff = new TeamStaffFragment();
+
+                fTeamMatches.setArguments(args);
+
+                adapter.addFragment(fTeamSummary, "Обзор");
+                adapter.addFragment(fTeamMatches, "Матчи");
+                adapter.addFragment(fTable, "Таблица");
+                adapter.addFragment(fTeamStaff, "Состав");
+                //tabLayout.
+
+                adapter.notifyDataSetChanged();
+
+                 //* - добавить "Back" кнопку вместо Drawer*/
                 return false;
             }
         });
@@ -173,7 +242,7 @@ public class MainActivity extends AppCompatActivity
         setupViewPager(mViewPager);
         mViewPager.setOffscreenPageLimit(4);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
         mUIHandler = new UIHandler();
@@ -188,7 +257,6 @@ public class MainActivity extends AppCompatActivity
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new TableTabFragment(), "ТАБЛИЦА");
-        //adapter.addFragment(new ScheduleTabFragment(), "РАСПИСАНИЕ");
         adapter.addFragment(new ScheduleFragment(), "РАСПИСАНИЕ");
         adapter.addFragment(new NewsTabFragment(), "НОВОСТИ");
         adapter.addFragment(new BestPlayersTabFragment(), "БОМБАРДИРЫ");
@@ -202,7 +270,9 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+            toggle.setDrawerIndicatorEnabled(true);
+            //super.onBackPressed();
         }
     }
 
@@ -259,13 +329,13 @@ public class MainActivity extends AppCompatActivity
                     listDataChild.put(listDataHeader.get(0), teamsList);
                     mMenuAdapter.notifyDataSetChanged();
 
-                    Loader lmLtemp = getSupportLoaderManager().getLoader(LOADER_STATISTICS);
+                    /*Loader lmLtemp = getSupportLoaderManager().getLoader(LOADER_STATISTICS);
                     if (lmLtemp !=null) {
                         Log.i(TAG, "mUIHandler: forceLoad with loader #" + LOADER_STATISTICS);
                         lmLtemp.forceLoad();
                     }
                     else
-                        Log.i(TAG, "mUIHandler: loader #" + LOADER_STATISTICS + " is not init. Skip it.");
+                        Log.i(TAG, "mUIHandler: loader #" + LOADER_STATISTICS + " is not init. Skip it.");*/
 
                     break;
 
