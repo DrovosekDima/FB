@@ -418,6 +418,26 @@ public class FootballDBHelper extends SQLiteOpenHelper
                return -1;
         }
 
+    /*---------------------------------------------
+возвращает адрес сайта комманды
+ ---------------------------------------------*/
+    public String getTeamURL(String inTeamName) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT  " + TEAMS_SITE + " FROM " + TABLE_TEAMS +
+                " WHERE " + TEAMS_TITLE + "='" + inTeamName + "'";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+        if (mCursor !=null && mCursor.getCount()>0)
+        {
+            mCursor.moveToFirst();
+            return mCursor.getString(mCursor.getColumnIndex(Schema.TEAMS_SITE));
+        }
+        else
+            return "Нет сайта!";
+    }
+
         /*-------------------------------------------------------
             возвращает уникальное ID игрока по имени и фамилии
         -------------------------------------------------------*/
@@ -496,7 +516,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
         public ContentValues createTeamValue(  String inTitle,
                                             String inCity,
                                             Bitmap inLogo,
-                                            String inPath,
+                                            String inSite,
                                             int inSeason )
         {
             ContentValues teamValue = new ContentValues();
@@ -509,7 +529,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
             teamValue.put(TEAMS_EMBLEM, bufferWithLogo);
 
-            teamValue.put(TEAMS_PATH, inPath);
+            teamValue.put(TEAMS_SITE, inSite);
             teamValue.put(TEAMS_SEASON, inSeason);
             teamValue.put(TEAMS_WIN, 0);
             teamValue.put(TEAMS_DRAW, 0);

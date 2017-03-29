@@ -151,6 +151,9 @@ public class DataMiner {
 
             String teamName = image.attr("title");
 
+            Element link = itemTeam.select("a").first();
+            String absUrl = link.absUrl("href");
+
             ContentValues teamTemp = mDB.createTeamValue(
                     teamName,
                     "",
@@ -159,7 +162,93 @@ public class DataMiner {
                     inSeason);
 
             mDB.addTeam(teamTemp);
+
+             /*
+             Для Городеи
+             absUrl = http://football.by/stat/belarus/2016/teams/39/
+
+             идем по этому адресу и скачиваем следующую информацию
+             - Сайт: www.fcgorodeya.by
+             - Домашний стадион: Стадион "Городея" (Городея, вместимость: 1020)
+             - ГЛАВНЫЙ ТРЕНЕР
+                Сергей Валерьевич Яромко
+             - ИГРОКИ
+                вра		Скиндерис Симас
+                защ		Колпачук Илья
+                пзщ		Воловик Юрий
+                нап		Ковб Дмитрий
+              */
+
+            grabStaffFromFootballby(inSeason, teamName, absUrl);
+
+            //todo обновить URL site комманды
         }
+
+        return;
+    }
+
+    public void grabStaffFromFootballby(int inSeason, String team, String urlSite)
+    {
+        Elements teamFullInfo; //<div class="st-teams-full-info"><div class="st-teams-full-name">Городея</div><b>Сайт:</b> <noindex><a href="http://www.fcgorodeya.by/" target="_blank" rel="external nofollow">www.fcgorodeya.by</a></noindex><br><br><b>Домашний стадион: </b><br>Стадион "Городея" (Городея, вместимость: 1020)<br></div>
+        Elements teamCoach; //<div class="st-teams-full-coach"><div class="st-teams-full-coach-name"><img src="/stat/getimage.php?flagid=1" alt="" title="Беларусь"> Сергей Валерьевич Яромко</div><div class="st-teams-full-coach-data">Дата рождения: 07.04.1967<br>Период работы в команде: 14.05.2014 - по настоящее время</div>
+        Elements tables;
+
+        Document doc = null;//Здесь хранится будет разобранный html документ
+        Element elem;
+        try
+        {
+            //Считываем страницу http://football.by/stat/belarus/2016/teams/39/
+            doc = Jsoup.connect(urlSite).get();
+        }
+        catch (IOException e)
+        {
+            //Если не получилось считать
+            e.printStackTrace();
+        }
+
+        //Если всё считалось, что вытаскиваем из считанного html документа заголовок
+        if (doc != null) {
+            teamFullInfo = doc.select(".st-teams-full-info");
+            teamCoach = doc.select(".st-teams-full-coach");
+            tables    = doc.select("table");
+        }
+        else {
+            return;
+        }
+
+        Element stadium = teamFullInfo.select("br").last();
+        String stad = stadium.text();
+        stadium = teamFullInfo.select("br").first();
+        stad = stadium.text();
+
+
+             /*
+             Для Городеи
+             absUrl = http://football.by/stat/belarus/2016/teams/39/
+
+             идем по этому адресу и скачиваем следующую информацию
+             - Сайт: www.fcgorodeya.by
+             - Домашний стадион: Стадион "Городея" (Городея, вместимость: 1020)
+             - ГЛАВНЫЙ ТРЕНЕР
+                Сергей Валерьевич Яромко
+             - ИГРОКИ
+                вра		Скиндерис Симас
+                защ		Колпачук Илья
+                пзщ		Воловик Юрий
+                нап		Ковб Дмитрий
+              */
+
+            //todo обновить URL site комманды
+            /*
+               ContentValues teamTemp = mDB.createTeamValue(
+                    teamName,
+                    "",
+                    teamLogo,
+                    "",
+                    inSeason);
+
+              mDB.addTeam(teamTemp);
+            */
 
         return;
     }

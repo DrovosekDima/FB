@@ -12,16 +12,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
+import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.R;
 
 
 public class TeamSummaryFragment extends Fragment {
+
+    FootballDBHelper mDB;
+    String teamName;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i("Debug", "TeamSummaryFragment::onCreate()");
+
+        Bundle args = getArguments();
+        teamName = args.getString("teamName");
+
+        mDB = new FootballDBHelper(getActivity().getApplicationContext());
     }
 
     @Override
@@ -33,14 +44,12 @@ public class TeamSummaryFragment extends Fragment {
         View view = inflater.inflate(R.layout.tab_team_summary, container, false);
         Context context = getActivity().getApplicationContext();
 
+        // Поменять заголовок
+        TextView urlTeam = (TextView) view.findViewById(R.id.siteView);
+        urlTeam.setText(mDB.getTeamURL(teamName));
         return view;
     }
 
-    /**
-     * Called when the Fragment is visible to the user.  This is generally
-     * tied to {@link Activity#onStart() Activity.onStart} of the containing
-     * Activity's lifecycle.
-     */
     @Override
     public void onStart() {
         super.onStart();

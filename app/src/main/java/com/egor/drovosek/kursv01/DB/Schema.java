@@ -7,7 +7,7 @@ package com.egor.drovosek.kursv01.DB;
 public class Schema {
 
     public static final String DATABASE_NAME = "football.db";
-    public static final int DATABASE_VERSION = 36;
+    public static final int DATABASE_VERSION = 39;
 
     public static final String TABLE_MATCHES = "matches";
     public static final String TABLE_TEAMS = "teams";
@@ -53,7 +53,7 @@ public class Schema {
     public static final String TEAMS_TITLE         = "title";
     public static final String TEAMS_CITY          = "city";
     public static final String TEAMS_EMBLEM        = "emblem";
-    public static final String TEAMS_PATH          = "path_to_logo";
+    public static final String TEAMS_SITE          = "site";
     public static final String TEAMS_SEASON        = "season";
     public static final String TEAMS_WIN           = "win";
     public static final String TEAMS_DRAW          = "draw";
@@ -66,7 +66,7 @@ public class Schema {
             + TEAMS_TITLE + " vchar, "
             + TEAMS_CITY + " vchar, "
             + TEAMS_EMBLEM + " blob, "
-            + TEAMS_PATH + " vchar, "
+            + TEAMS_SITE + " vchar, "
             + TEAMS_SEASON + " integer, "
             + TEAMS_WIN + " integer, "
             + TEAMS_DRAW + " datetime, "

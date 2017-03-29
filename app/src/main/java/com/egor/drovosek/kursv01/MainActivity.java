@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity
                 Fragment fTeamStaff = new TeamStaffFragment();
 
                 fTeamMatches.setArguments(args);
+                fTeamSummary.setArguments(args);
 
                 adapter.addFragment(fTeamSummary, "Обзор");
                 adapter.addFragment(fTeamMatches, "Матчи");

@@ -1,11 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:text="Информация о комманде"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/tvSummary" />
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Сайт:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/siteText"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="htt://"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/siteView"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Стадион:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/stadium"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="Домашний стадион"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/stadiumView"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Главный тренер"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/couchText"
+            android:layout_weight="1"
+            android:textAlignment="center" />
+
+        <TextView
+            android:text="Иванов Иван Иваныч"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/couchView"
+            android:layout_weight="1"
+            android:textAllCaps="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+        android:text="Состав"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/staffText"
+        android:layout_weight="1"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+        android:text="Игрок"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="7"
+        android:id="@+id/colFIOplayer" />
+
+        <TextView
+        android:text="Амплуа"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        android:id="@+id/colAmplua" />
+
+        <TextView
+        android:text="Голы"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:id="@+id/colGoals"
+        android:textAlignment="center" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/staffList" />
+    </LinearLayout>
+
 </LinearLayout>
