@@ -216,11 +216,14 @@ public class DataMiner {
             return;
         }
 
-        Element stadium = teamFullInfo.select("br").last();
-        String stad = stadium.text();
-        stadium = teamFullInfo.select("br").first();
-        stad = stadium.text();
+        Element stadium = teamFullInfo.first();
+        String stadAndUrl = stadium.text();
 
+        Elements coach = teamCoach.select(".st-teams-full-coach-name");
+        String coachStr = coach.first().text();
+
+        Element tableMatch = tables.get(1); //вторая таблица содержит всю информацию
+        Elements rows = tableMatch.select("tr");
 
              /*
              Для Городеи
