@@ -50,6 +50,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
             db.execSQL(CREATE_TABLE_MATCHES);
             db.execSQL(CREATE_TABLE_PLAYERS);
             db.execSQL(CREATE_TABLE_GOALS);
+            db.execSQL(CREATE_TABLE_STAFF);
         }
 
         @Override
@@ -62,6 +63,8 @@ public class FootballDBHelper extends SQLiteOpenHelper
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEAMS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYERS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_GOALS);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_STAFF);
+
                 onCreate(db);
             }
         }
@@ -398,6 +401,38 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
     }
 
+    public Cursor getMembersOfTeam(int season, String inTeamName) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        /*
+            SELECT st.position, plr.first_name, plr_second_name from staff AS st
+            JOIN players AS plr ON plr.team_id=???
+            JOIN goals AS gl ON st.player_id=gl.player_id
+            WHERE season=season
+            GROUP BY plr.second_name;
+         */
+
+        String selectQuery =
+                "SELECT p.P_ID AS _id, "    +
+                        "p.first_name AS first_name, "    +
+                        "p.second_name AS second_name, " +
+                        "t.title AS teamName, "          +
+                        "t.emblem AS logo, "             +
+                        "COUNT(g.match_id) AS numberOfGoals " +
+                        " FROM players AS p " +
+                        " JOIN goals AS g ON p.P_ID=g.player_id " +
+                        " JOIN matches AS m ON g.match_id=m.M_ID AND m.season=" + String.valueOf(season) +
+                        " JOIN teams AS t ON p.team_id=t.T_ID " +
+                        " GROUP BY p.second_name " +
+                        " ORDER BY numberOfGoals DESC;";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        return mCursor;
+
+    }
+
         /*---------------------------------------------
         возвращает уникальное ID комманды
          ---------------------------------------------*/
@@ -621,6 +656,27 @@ public class FootballDBHelper extends SQLiteOpenHelper
             return teamValue;
         }
 
+        public void addMember(ContentValues _memberValue)
+        {
+            SQLiteDatabase db = this.getWritableDatabase();
+            long rowID = db.insert(TABLE_STAFF, null, _memberValue);
+            if (rowID < 0)
+                Log.v(TRACE, "addMember FAILED");
+        }
+
+        public ContentValues createMemberValue(int    inTeamId,
+                                               int    inPlayerID,
+                                               String inAmplua,
+                                               int    inSeason)
+        {
+            ContentValues memberValue = new ContentValues();
+            memberValue.put(STAFF_TEAM_ID, inTeamId);
+            memberValue.put(STAFF_PLAYER_ID, inPlayerID);
+            memberValue.put(STAFF_POSITION, inSeason);
+            memberValue.put(STAFF_POSITION, inAmplua);
+
+            return memberValue;
+        }
 
         public void addGoal(ContentValues _goalValue)
         {

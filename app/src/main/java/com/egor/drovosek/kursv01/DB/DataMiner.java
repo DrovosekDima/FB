@@ -193,11 +193,15 @@ public class DataMiner {
         Elements teamCoach; //<div class="st-teams-full-coach"><div class="st-teams-full-coach-name"><img src="/stat/getimage.php?flagid=1" alt="" title="Беларусь"> Сергей Валерьевич Яромко</div><div class="st-teams-full-coach-data">Дата рождения: 07.04.1967<br>Период работы в команде: 14.05.2014 - по настоящее время</div>
         Elements tables;
 
+        int teamID = mDB.getTeamID(team);
+        int playerID;
+
         Document doc = null;//Здесь хранится будет разобранный html документ
         Element elem;
         try
         {
             //Считываем страницу http://football.by/stat/belarus/2016/teams/39/
+            // 39 - Городея
             doc = Jsoup.connect(urlSite).get();
         }
         catch (IOException e)
@@ -222,9 +226,60 @@ public class DataMiner {
         Elements coach = teamCoach.select(".st-teams-full-coach-name");
         String coachStr = coach.first().text();
 
+        /*Добавляем тренера в таблицы
+           - player
+           - staff
+           */
+        // добавляем тренера в таблицу PLAYERS
+        ContentValues coachVal = mDB.createPlayerValue(coachStr,
+                "", 0, 0, null, null, null, teamID);
+        mDB.addPlayer(coachVal);
+
+        playerID = mDB.getPlayerID(coachStr, "");
+
+        // добавляем тренера в таблицу STAFF
+        ContentValues memberV = mDB.createMemberValue(teamID, playerID, "тренер", inSeason);
+        mDB.addMember(memberV);
+
+        /*-----------------------*/
+
         Element tableMatch = tables.get(1); //вторая таблица содержит всю информацию
         Elements rows = tableMatch.select("tr");
 
+        if(rows.size() > 3)
+        for (int i = 1; i < rows.size() - 2; i++) {
+            Log.i(TAG, team + " " + "player #" + i);
+            Element row = rows.get(i);
+
+            Elements columns = row.select("td");
+
+            if (columns.size() < 11)
+                continue;
+
+            String amplua = columns.get(0).text();
+
+            String name = columns.get(2).text();
+            //Игнатенко Дмитрий Н.
+            String chunks[] = name.split(" ");
+            String secondName = chunks[0];
+            String firstName = "";
+
+            for (int ii = 1; ii < chunks.length; ii++)
+               firstName = firstName + chunks[ii];
+
+            // такого игрока не существует и его надо добавить в таблицу
+            ContentValues player = mDB.createPlayerValue(firstName,
+                        secondName, 0, 0, null, null, null,
+                        teamID);
+
+             mDB.addPlayer(player);
+
+            playerID = mDB.getPlayerID(firstName, secondName);
+
+            // добавляем игрока в базу STAFF
+            ContentValues member = mDB.createMemberValue(teamID, playerID, amplua, inSeason);
+            mDB.addMember(member);
+        }
              /*
              Для Городеи
              absUrl = http://football.by/stat/belarus/2016/teams/39/

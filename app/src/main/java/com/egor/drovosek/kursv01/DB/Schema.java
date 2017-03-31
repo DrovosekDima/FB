@@ -7,7 +7,7 @@ package com.egor.drovosek.kursv01.DB;
 public class Schema {
 
     public static final String DATABASE_NAME = "football.db";
-    public static final int DATABASE_VERSION = 43;
+    public static final int DATABASE_VERSION = 50;
 
     public static final String TABLE_MATCHES = "matches";
     public static final String TABLE_TEAMS = "teams";
@@ -129,5 +129,30 @@ public class Schema {
     	weight INTEGER,
 	    photo blob,
 	    team_id INTEGER);*/
+
+    /*=================================================================================*/
+    /*таблица staff*/
+    public static final String STAFF_ID          = "S_ID";
+    public static final String STAFF_PLAYER_ID   = "player_id";
+    public static final String STAFF_POSITION    = "position";
+    public static final String STAFF_SEASON      = "season";
+    public static final String STAFF_TEAM_ID     = "team_id";
+
+    // запрос на создание таблицы goals
+    public static final String CREATE_TABLE_STAFF = "create table "
+            + TABLE_STAFF + "( "
+            + STAFF_ID + " integer primary key autoincrement, "
+            + STAFF_PLAYER_ID + " integer, "
+            + STAFF_POSITION + " vchar, "
+            + STAFF_SEASON + " integer, "
+            + STAFF_TEAM_ID + " integer);";
+
+    /*CREATE TABLE staff (
+            S_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_id INTEGER,
+            position vchar,
+            season INTEGER,
+            team_id integer);*/
+    /*=================================================================================*/
 }
 
