@@ -91,16 +91,15 @@ public class MainActivity extends AppCompatActivity
         gdSeason = Integer.valueOf(value);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayShowTitleEnabled(false);
-        //getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.actionbar_title);
+
         TextView mainTitle = (TextView) findViewById(R.id.main_title);
         mainTitle.setText(getString(R.string.title) + " " +gdSeason);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         toggle = new ActionBarDrawerToggle(
                 this,
@@ -124,6 +123,8 @@ public class MainActivity extends AppCompatActivity
 
         // setting list adapter
         expandableList.setAdapter(mMenuAdapter);
+
+        /*Обработчик выбора комманды*/
         expandableList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView,
@@ -147,6 +148,15 @@ public class MainActivity extends AppCompatActivity
                 //mDrawerLayout.isDrawerVisible((DrawerLayout) findViewById(R.id.drawer_layout));
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
                 toggle.setDrawerIndicatorEnabled(false);
+
+                // показать Back иконку
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onBackPressed();
+                    }
+                });
 
                 // получить имя комманды
                 //ExpandableListAdapter tempMenuAdapter =  (ExpandableListAdapter)expandableList.getAdapter();
@@ -194,11 +204,13 @@ public class MainActivity extends AppCompatActivity
 
                 fTeamMatches.setArguments(args);
                 fTeamSummary.setArguments(args);
+                fTeamStaff.setArguments(args);
+                fTeamMatches.setArguments(args);
 
-                adapter.addFragment(fTeamSummary, "Обзор");
+                //adapter.addFragment(fTeamSummary, "Обзор");
+                adapter.addFragment(fTeamStaff, "Состав");
                 adapter.addFragment(fTeamMatches, "Матчи");
                 adapter.addFragment(fTable, "Таблица");
-                adapter.addFragment(fTeamStaff, "Состав");
                 //tabLayout.
 
                 adapter.notifyDataSetChanged();
@@ -208,6 +220,11 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        /*обработчик
+        * выхода
+        * настройки
+        * обратная связь
+        * */
         expandableList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener()
         {
             @Override
@@ -267,12 +284,56 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            // спрятать Back иконку
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+            //* - включить Drawer
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
             toggle.setDrawerIndicatorEnabled(true);
+            drawer.setDrawerListener(toggle);
+            toggle.syncState();
+            final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawer.openDrawer(GravityCompat.START);
+                }
+            });
+
+            // Поменять заголовок
+            TextView mainTitle = (TextView) findViewById(R.id.main_title);
+            mainTitle.setText(getString(R.string.title) + " " + gdSeason);
+
+            ViewPagerAdapter adapter = (ViewPagerAdapter) mViewPager.getAdapter();
+
+            // 1. удалить предыдущие вкладки;
+
+            int count = adapter.getCount();
+            for (int i = (count-1) ; i > -1; i--) {
+                Log.d("DEBUG", "Del tab " + i);
+
+                Object obj = adapter.instantiateItem(mViewPager, i);
+
+                if (obj != null) {
+                    adapter.destroyItem(mViewPager, i, obj);
+                }
+
+            }
+
+            adapter.notifyDataSetChanged();
+
+            // добавить вкладки
+            adapter.addFragment(new TableTabFragment(), "ТАБЛИЦА");
+            adapter.addFragment(new ScheduleFragment(), "РАСПИСАНИЕ");
+            adapter.addFragment(new NewsTabFragment(), "НОВОСТИ");
+            adapter.addFragment(new BestPlayersTabFragment(), "БОМБАРДИРЫ");
+
+            adapter.notifyDataSetChanged();
+
             //super.onBackPressed();
         }
     }

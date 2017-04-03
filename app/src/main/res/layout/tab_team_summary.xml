@@ -87,26 +87,19 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:text="Амплуа"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:id="@+id/colAmplua" />
+
+        <TextView
         android:text="Игрок"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="7"
+        android:layout_weight="10"
         android:id="@+id/colFIOplayer" />
 
-        <TextView
-        android:text="Амплуа"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="5"
-        android:id="@+id/colAmplua" />
-
-        <TextView
-        android:text="Голы"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:id="@+id/colGoals"
-        android:textAlignment="center" />
     </LinearLayout>
 
     <LinearLayout

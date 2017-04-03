@@ -406,30 +406,59 @@ public class FootballDBHelper extends SQLiteOpenHelper
         SQLiteDatabase db = this.getReadableDatabase();
 
         /*
-            SELECT st.position, plr.first_name, plr_second_name from staff AS st
-            JOIN players AS plr ON plr.team_id=???
-            JOIN goals AS gl ON st.player_id=gl.player_id
-            WHERE season=season
-            GROUP BY plr.second_name;
+          SELECT st.player_id AS _id,
+                 st.position,
+                 plr.first_name,
+                 plr.second_name from staff AS st
+         JOIN players AS plr ON st.player_id=plr.P_ID
+          WHERE st.season=2016 AND st.team_id=3;
          */
+        int teamID = getTeamID(inTeamName);
 
         String selectQuery =
-                "SELECT p.P_ID AS _id, "    +
-                        "p.first_name AS first_name, "    +
-                        "p.second_name AS second_name, " +
-                        "t.title AS teamName, "          +
-                        "t.emblem AS logo, "             +
-                        "COUNT(g.match_id) AS numberOfGoals " +
-                        " FROM players AS p " +
-                        " JOIN goals AS g ON p.P_ID=g.player_id " +
-                        " JOIN matches AS m ON g.match_id=m.M_ID AND m.season=" + String.valueOf(season) +
-                        " JOIN teams AS t ON p.team_id=t.T_ID " +
-                        " GROUP BY p.second_name " +
-                        " ORDER BY numberOfGoals DESC;";
+                "SELECT st.player_id AS _id,  "    +
+                       "st.position AS position, "    +
+                       "plr.first_name AS first_name, " +
+                       "plr.second_name AS second_name from staff AS st " +
+                       "JOIN players AS plr ON st.player_id=plr.P_ID " +
+                       "WHERE st.season=" + String.valueOf(season) +
+                        " AND st.team_id=" + String.valueOf(teamID) +
+                        " AND st.position!='тренер'" + ";";
 
         Cursor mCursor = db.rawQuery(selectQuery, null);
 
         return mCursor;
+
+    }
+    public String getCouchOfTeam(int season, String inTeamName) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        int teamID = getTeamID(inTeamName);
+        String name= "";
+
+        String selectQuery =
+                "SELECT st.player_id AS _id,  "    +
+                        "st.position AS position, "    +
+                        "plr.first_name AS first_name, " +
+                        "plr.second_name AS second_name from staff AS st " +
+                        "JOIN players AS plr ON st.player_id=plr.P_ID " +
+                        "WHERE st.season=" + String.valueOf(season) +
+                        " AND st.team_id=" + String.valueOf(teamID) +
+                        " AND st.position='тренер'" + ";";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        if (mCursor !=null) {
+            mCursor.moveToFirst();
+
+            if(mCursor.getCount()>0) {
+               name = mCursor.getString( mCursor.getColumnIndex("first_name")) +
+                              mCursor.getString( mCursor.getColumnIndex("second_name"));
+            }
+        }
+
+        return name;
 
     }
 
@@ -672,7 +701,7 @@ public class FootballDBHelper extends SQLiteOpenHelper
             ContentValues memberValue = new ContentValues();
             memberValue.put(STAFF_TEAM_ID, inTeamId);
             memberValue.put(STAFF_PLAYER_ID, inPlayerID);
-            memberValue.put(STAFF_POSITION, inSeason);
+            memberValue.put(STAFF_SEASON, inSeason);
             memberValue.put(STAFF_POSITION, inAmplua);
 
             return memberValue;
