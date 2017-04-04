@@ -40,6 +40,7 @@ public class GrabTeamsRunnable implements Runnable {
         List<Team> teams = mDB.getListTeams(MainActivity.gdSeason);
         mDB.close();
 
+        //скачиваем список комманд, если они отсутствуют
         if(teams.isEmpty()) {
             Log.d(TAG, "grab team for " + MainActivity.gdSeason + " season");
             DataMiner dm = new DataMiner(mContext);

@@ -15,11 +15,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.egor.drovosek.kursv01.Misc.GrabMatchesWithGoalsRunnable;
+import com.egor.drovosek.kursv01.Misc.GrabCompletedMatchesRunnable;
+import com.egor.drovosek.kursv01.Misc.GrabScheduleRunnable;
 import com.egor.drovosek.kursv01.Misc.GrabTeamsRunnable;
-import com.egor.drovosek.kursv01.R;
 
 import static com.egor.drovosek.kursv01.MainActivity.dataMinerThread;
 import static com.egor.drovosek.kursv01.MainActivity.gdSeason;
@@ -77,10 +76,12 @@ public class SettingsActivity extends PreferenceActivity implements
             value = sharedPreferences.getString(key, "");
             gdSeason = Integer.valueOf(value);
             Log.i("Settings", "Season was changed to " + value);
-            //todo refresh data if season was changed!!!!
 
             dataMinerThread.postTask(new GrabTeamsRunnable(MainActivity.mUIHandler, getApplicationContext()));
-            dataMinerThread.postTask(new GrabMatchesWithGoalsRunnable(MainActivity.mUIHandler, getApplicationContext()));
+
+            dataMinerThread.postTask(new GrabScheduleRunnable(MainActivity.mUIHandler, getApplicationContext()));
+
+            dataMinerThread.postTask(new GrabCompletedMatchesRunnable(MainActivity.mUIHandler, getApplicationContext()));
         }
 
         updatePrefSummary(findPreference(key));

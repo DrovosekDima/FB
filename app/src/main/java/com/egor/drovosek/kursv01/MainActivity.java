@@ -8,10 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.Loader;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
@@ -36,13 +33,14 @@ import com.egor.drovosek.kursv01.MainWindowTabFragments.BestPlayersTab.BestPlaye
 import com.egor.drovosek.kursv01.MainWindowTabFragments.NewsTab.NewsTabFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.TableStats.TableTabFragment;
-import com.egor.drovosek.kursv01.MainWindowTabFragments.TeamMatchesTab.TeamMatchesFragment;
+import com.egor.drovosek.kursv01.MainWindowTabFragments.TeamMatchesAway.TeamMatchesAwayFragment;
+import com.egor.drovosek.kursv01.MainWindowTabFragments.TeamMatchesTab.TeamMatchesHomeFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.TeamStaffTab.TeamStaffFragment;
-import com.egor.drovosek.kursv01.MainWindowTabFragments.TeamSummaryTab.TeamSummaryFragment;
 import com.egor.drovosek.kursv01.MainWindowTabFragments.ViewPagerAdapter;
 import com.egor.drovosek.kursv01.Misc.DataMinerWorkerThread;
 import com.egor.drovosek.kursv01.Misc.ExpandableListAdapter;
-import com.egor.drovosek.kursv01.Misc.GrabMatchesWithGoalsRunnable;
+import com.egor.drovosek.kursv01.Misc.GrabCompletedMatchesRunnable;
+import com.egor.drovosek.kursv01.Misc.GrabScheduleRunnable;
 import com.egor.drovosek.kursv01.Misc.GrabTeamsRunnable;
 import com.egor.drovosek.kursv01.Misc.Team;
 
@@ -60,6 +58,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final int GRAB_TEAM_COMPLETED = 1;
     public static final int GRAB_MATCHES_COMPLETED = 2;
+    public static final int GRAB_SCHEDULE_COMPLETED = 3;
 
     //todo: create global class
     public static int gdSeason = 2016;
@@ -80,6 +79,7 @@ public class MainActivity extends AppCompatActivity
     HashMap<String, List<Team>> listDataChild;
     public String TAG = "MainActivity";
     public static DataMinerWorkerThread dataMinerThread;
+    public boolean showRightMenu = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,9 +144,14 @@ public class MainActivity extends AppCompatActivity
                 view_Group.setBackgroundColor(Color.parseColor("#DDDDDD"));
                 mDrawerLayout.closeDrawers();
 
+                // скрыть правое меню
+                showRightMenu = false;
+                invalidateOptionsMenu(); // now onCreateOptionsMenu(...) is called again
+
                 //* - отключить Drawer
                 //mDrawerLayout.isDrawerVisible((DrawerLayout) findViewById(R.id.drawer_layout));
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+
                 toggle.setDrawerIndicatorEnabled(false);
 
                 // показать Back иконку
@@ -197,19 +202,20 @@ public class MainActivity extends AppCompatActivity
                 Bundle args = new Bundle();
                 args.putString("teamName", element.getTitle());
 
-                Fragment fTeamSummary = new TeamSummaryFragment();
-                Fragment fTeamMatches = new TeamMatchesFragment();
+                Fragment fTeamAwayMatches = new TeamMatchesAwayFragment();
+                Fragment fTeamHomeMatches = new TeamMatchesHomeFragment();
                 Fragment fTable = new TableTabFragment();
                 Fragment fTeamStaff = new TeamStaffFragment();
 
-                fTeamMatches.setArguments(args);
-                fTeamSummary.setArguments(args);
+                fTeamHomeMatches.setArguments(args);
+                fTeamAwayMatches.setArguments(args);
                 fTeamStaff.setArguments(args);
-                fTeamMatches.setArguments(args);
+                fTable.setArguments(args);
 
                 //adapter.addFragment(fTeamSummary, "Обзор");
                 adapter.addFragment(fTeamStaff, "Состав");
-                adapter.addFragment(fTeamMatches, "Матчи");
+                adapter.addFragment(fTeamHomeMatches, "Домашние матчи");
+                adapter.addFragment(fTeamAwayMatches, "Гостевые матчи");
                 adapter.addFragment(fTable, "Таблица");
                 //tabLayout.
 
@@ -267,9 +273,14 @@ public class MainActivity extends AppCompatActivity
 
         dataMinerThread = new DataMinerWorkerThread("DataMinerThread", mUIHandler);
 
+        //первый шаг загрузка списка комманд
         dataMinerThread.postTask(new GrabTeamsRunnable(mUIHandler, getApplicationContext()));
 
-        dataMinerThread.postTask(new GrabMatchesWithGoalsRunnable(mUIHandler, getApplicationContext()));
+        //загрузка расписания без результатов матчей
+        dataMinerThread.postTask(new GrabScheduleRunnable(mUIHandler, getApplicationContext()));
+
+        // скачивание доступных результатов матчей
+        dataMinerThread.postTask(new GrabCompletedMatchesRunnable(mUIHandler, getApplicationContext()));
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -291,8 +302,13 @@ public class MainActivity extends AppCompatActivity
             // спрятать Back иконку
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
+            // показать правое меню
+            showRightMenu = true;
+            invalidateOptionsMenu(); // now onCreateOptionsMenu(...) is called again
+
             //* - включить Drawer
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+
             toggle.setDrawerIndicatorEnabled(true);
             drawer.setDrawerListener(toggle);
             toggle.syncState();
@@ -341,7 +357,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.right_menu, menu);
+        if (showRightMenu == true)
+        {
+            for (int i = 0; i < menu.size(); i++)
+                menu.getItem(i).setVisible(true);
+        }
+        else
+        {
+            for (int i = 0; i < menu.size(); i++)
+                menu.getItem(i).setVisible(false);
+        }
+
         return true;
     }
 
@@ -356,18 +383,10 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_refresh) {
             Toast.makeText(MainActivity.this,"Refresh started!", Toast.LENGTH_SHORT).show();
 
-            //progressState = ProgressDialog.show(MainActivity.this, "", "Воруем данные с football.by...");
-            /*new Thread() {
-                public void run() {
-                    //grab data from football.by
-                    try {
-                        TimeUnit.SECONDS.sleep(15);
-                    }catch (InterruptedException e){
-                        e.printStackTrace();
-                    }
-                    mUIHandler.sendEmptyMessage(0);
-                }
-            }.start();*/
+            // скачивание доступных результатов матчей
+            // по окончании загрузки GrabCompletedMatchesRunnable
+            // уведомит все окошки, что надо обновитьданные
+            dataMinerThread.postTask(new GrabCompletedMatchesRunnable(mUIHandler, getApplicationContext()));
 
             return true;
         }

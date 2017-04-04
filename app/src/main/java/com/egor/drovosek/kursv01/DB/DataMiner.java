@@ -647,7 +647,8 @@ public class DataMiner {
     }
 
     /*извлекаем данные  без AsyncTask, то есть в foreground*/
-    public int populateScheduleWithoutGoalsFG(int inSeason, int inRound)
+    //public int populateScheduleWithoutGoalsFG(int inSeason/*, int inRound*/)
+    public int grabSchedule(int inSeason)
     {
         int RetCode = 0;
         String title;//Тут храним значение заголовка сайта
@@ -655,7 +656,9 @@ public class DataMiner {
         String address; //адрес страницы http://football.by...
         Element item;
         Elements tables;
+
         /*todo: добавить проверку есть ли такие данные в таблице*/
+        // Done. проверка есть перед вызовом grabSchedule()
 
         Document doc = null;//Здесь хранится будет разобранный html документ
         Element elem;
@@ -720,7 +723,7 @@ public class DataMiner {
                          sch-teams
                          sch-score
                          sch-status*/
-                if (currentRound == inRound)
+                //if (currentRound == inRound) //все матчи
                 {
                     String date = columns.get(0).text(); //sch-date
                     String time = columns.get(1).text(); //sch-time
@@ -739,6 +742,12 @@ public class DataMiner {
                     String homeScore = retval[0];
                     String guestScore = retval[1];
 
+                    if(score.compareTo("-:-") == 0)
+                    {
+                        homeScore = "-1";
+                        guestScore = "-1";
+                    }
+
                     //todo: add check for status, if current date > match.date then complete
                     ContentValues matchTemp = mDB.createMatchValue(
                             homeTeam,
@@ -749,36 +758,49 @@ public class DataMiner {
                             currentRoundStr,
                             date,
                             "unknown",
-                            STATUS_COMPLETED
+                            STATUS_FUTURE
                     );
 
                     mDB.addMatch(matchTemp);
+
+                    Log.i(TAG, "grabSchedule: round #" + i);
+                    Log.i(TAG, homeTeam + " " + homeScore + " : " + guestScore + " "+ guestTeam);
+                    Log.i(TAG, String.valueOf(inSeason));
+                    Log.i(TAG, "тур: " + currentRoundStr);
+                    Log.i(TAG, date);
+                    Log.i(TAG, "unknown");
+                    Log.i(TAG, "FUTURE");
+
                     matchTemp.clear();
 
                 }
-                else if (currentRound > inRound)
+                /*else if (currentRound > inRound)
                 {
                     break;
-                }
+                }*/
 
             }
         }
         return RetCode;
     }
 
+    /* скачиваем с сайта все законченные матчи
+       важно: в таблице матчей есть все матчи
+              но часть матчей заполнена, а какая-то часть нет
 
-    public void grabAllMatches(int inSeason)
+    * */
+    public void grabCompletedMatches(int inSeason)
     {
         int lastRound = mDB.getLastCompleteRound(inSeason);
 
-        Log.i(TAG, "grabAllMatches: last round in season " + inSeason +" is " + lastRound);
+        Log.i(TAG, "grabCompletedMatches: last completed round in season " + inSeason +" is " + lastRound);
 
         int ret = 0;
         int i = 0;
-        //for(int i = lastRound + 1; i < MainActivity.gdNumberOfRounds+1; i++) {
+
         for(i = lastRound + 1; ret != -1; i++) {
             ret = populateScheduleWithGoalsAndPlayersFG(inSeason, i);
-            Log.i(TAG, "grabAllMatches: round #" + i +" loaded.");
+            Log.i(TAG, "grabCompletedMatches: round #" + i +" loaded.");
         }
         gdNumberOfRounds = i-1;
 
@@ -817,9 +839,6 @@ public class DataMiner {
         String address; //адрес страницы http://football.by...
         Element item;
         Elements teams = null;
-
-        //todo: добавить проверку есть ли такие данные в таблице
-        //
 
         Document doc = null;//Здесь хранится будет разобранный html документ
         Element elem;
@@ -936,7 +955,21 @@ public class DataMiner {
                 if (innerElem.size() < 3)
                     return -1; //форма на сайте не полная, просто выходим
 
+                /*date and time processing */
                 dateTime = innerElem.get(1).select(".md-wideleft").text();
+                /*01.04.2017. 14:00
+                  точка после даты лишняя, надо убрать иначе не работает сравнение
+                * */
+                String dt[] = dateTime.split(" ");
+                dateTime = dt[0];
+                if (dateTime.endsWith("."))
+                    dateTime = dateTime.substring(0, dateTime.length()-1);
+
+                dateTime = dateTime + " ";
+
+                dateTime = dateTime + dt[1];
+                /*end date and time processing*/
+
                 onSite = innerElem.get(1).select(".md-wideright").text();
 
                 guestGoalsPlayers.clear();
@@ -962,9 +995,19 @@ public class DataMiner {
 
             }
 
+            //todo: if current date < match.date then future
+            // матч не надо обновлять если он не начался
+            boolean test = false;
+            if (test)
+                return -1;
+
             /*Step 1: добавить матч в таблицу matches*/
             {
-                //todo: add check for status, if current date > match.date then complete
+                homeTeamID = mDB.getTeamID(home);
+                guestTeamID = mDB.getTeamID(guest);
+                // получить матч ID, который будет использоваться при добавлении гола в таблицу
+                matchID = mDB.getMatchID(homeTeamID, dateTime);
+
                 ContentValues matchTemp = mDB.createMatchValue(
                         home,
                         guest,
@@ -976,11 +1019,29 @@ public class DataMiner {
                         onSite,
                         status);
 
-                mDB.addMatch(matchTemp);
-                // получить матч ID, который будет использоваться при добавлении гола в таблицу
-                homeTeamID = mDB.getTeamID(home);
-                guestTeamID = mDB.getTeamID(guest);
-                matchID = mDB.getMatchID(homeTeamID, dateTime);
+                // если нет матча значит, что то пошло не так на загрузке расписания
+                if (matchID < 0)
+                {
+                    // не должны сюда попасть, матча нет в расписании
+                    // добавлям матч
+                    mDB.addMatch(matchTemp);
+                    // получить матч ID, который будет использоваться при добавлении гола в таблицу
+                    matchID = mDB.getMatchID(homeTeamID, dateTime);
+                }
+                else
+                {
+                    Log.i(TAG, "grabCompletedMatches: round #" + i);
+                    Log.i(TAG, "grabCompletedMatches: update with ");
+                    Log.i(TAG, home + " " + homeGoals + " : " + guestGoals + " "+ guest);
+                    Log.i(TAG, String.valueOf(inSeason));
+                    Log.i(TAG, String.valueOf(inRound));
+                    Log.i(TAG, dateTime);
+                    Log.i(TAG, onSite);
+                    Log.i(TAG, status);
+
+                    mDB.updateMatch(matchID, matchTemp);
+                    // обновляем матч
+                }
 
                 matchTemp.clear();
             }

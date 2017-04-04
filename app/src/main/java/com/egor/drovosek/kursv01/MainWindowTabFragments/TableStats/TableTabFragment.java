@@ -49,12 +49,16 @@ public class TableTabFragment extends Fragment {
     ListView lvData;
     public StatisticCursorAdapter scAdapter;
     public String TAG = "StatisticsTAB";
-    String team;
+    String team = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "TableStats::onCreate()");
+
+        Bundle args = getArguments();
+        if (args != null)
+           team = args.getString("teamName");
 
         context = getActivity().getApplicationContext();
 
@@ -87,7 +91,7 @@ public class TableTabFragment extends Fragment {
                 R.id.colPoints};
 
         // создаем адаптер и настраиваем список
-        scAdapter = new StatisticCursorAdapter(context, R.layout.tab_frag_table, null, from, to);
+        scAdapter = new StatisticCursorAdapter(context, R.layout.tab_frag_table, null, from, to, team);
     }
 
     @Override

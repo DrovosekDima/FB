@@ -14,23 +14,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
 import android.widget.ListView;
 
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
-import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.RoundMatchExpandListAdapter;
-import com.egor.drovosek.kursv01.Misc.Match;
 import com.egor.drovosek.kursv01.R;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import static com.egor.drovosek.kursv01.MainActivity.gdNumberOfRounds;
 import static com.egor.drovosek.kursv01.MainActivity.gdSeason;
 
 
-public class TeamMatchesFragment extends Fragment {
+public class TeamMatchesHomeFragment extends Fragment {
 
     FootballDBHelper mDB;
     public Context context;
@@ -40,7 +32,7 @@ public class TeamMatchesFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Log.i("Debug", "TeamMatchesFragment::onCreate()");
+        Log.i("Debug", "TeamMatchesHomeFragment::onCreate()");
         context = getActivity().getApplicationContext();
 
         mDB = new FootballDBHelper(context);
@@ -52,16 +44,16 @@ public class TeamMatchesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Log.i("Debug", "TeamMatchesFragment::onCreateView()");
+        Log.i("Debug", "TeamMatchesHomeFragment::onCreateView()");
         View view = inflater.inflate(R.layout.tab_team_matches, container, false);
 
         // Find ListView to populate
         ListView lvItems = (ListView) view.findViewById(R.id.team_matches_list);
 
-        Cursor matchesCursor = mDB.getMatchesSeason(gdSeason, teamName);
+        Cursor matchesCursor = mDB.getMatchesHomeSeason(gdSeason, teamName);
 
         // Setup cursor adapter using cursor from last step
-        TeamMatchesListAdapter matchAdapter = new TeamMatchesListAdapter(context, matchesCursor);
+        TeamMatchesHomeListAdapter matchAdapter = new TeamMatchesHomeListAdapter(context, matchesCursor);
 
         // Attach cursor adapter to the ListView
         lvItems.setAdapter(matchAdapter);
@@ -71,7 +63,7 @@ public class TeamMatchesFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Log.i("Debug", "TeamMatchesFragment::onStart()");
+        Log.i("Debug", "TeamMatchesHomeFragment::onStart()");
     }
 
     /**
@@ -79,7 +71,7 @@ public class TeamMatchesFragment extends Fragment {
      */
     @Override
     public void onResume() {
-        Log.i("Debug", "TeamMatchesFragment::onResume()");
+        Log.i("Debug", "TeamMatchesHomeFragment::onResume()");
         super.onResume();
     }
 
@@ -91,7 +83,7 @@ public class TeamMatchesFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("Debug", "TeamMatchesFragment::onDestroy()");
+        Log.i("Debug", "TeamMatchesHomeFragment::onDestroy()");
     }
 
     /**
@@ -106,7 +98,7 @@ public class TeamMatchesFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.i("Debug", "TeamMatchesFragment::onDestroyView()");
+        Log.i("Debug", "TeamMatchesHomeFragment::onDestroyView()");
     }
 
     /**
@@ -115,7 +107,7 @@ public class TeamMatchesFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.i("Debug", "TeamMatchesFragment::onPause()");
+        Log.i("Debug", "TeamMatchesHomeFragment::onPause()");
     }
 
     /**
@@ -124,6 +116,6 @@ public class TeamMatchesFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        Log.i("Debug", "TeamMatchesFragment::onStop()");
+        Log.i("Debug", "TeamMatchesHomeFragment::onStop()");
     }
 }

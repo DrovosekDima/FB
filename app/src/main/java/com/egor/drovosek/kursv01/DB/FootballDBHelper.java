@@ -176,6 +176,55 @@ public class FootballDBHelper extends SQLiteOpenHelper
 
         }
 
+    public Cursor getMatchesAwaySeason(int season, String teamName) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        //String selectQuery = "SELECT m.round as _id, m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+ String.valueOf(season) + " and (GUEST.title='"+teamName+"');";
+        String selectQuery = "SELECT m.round as _id, " +
+                "m.round, " +
+                "HOME.title AS home_title, " +
+                "HOME.emblem AS homeLogo, " +
+                "GUEST.title AS guest_title, " +
+                "GUEST.emblem AS guestLogo, " +
+                "m.score_home, " +
+                "m.score_guest, " +
+                "m.datem, " +
+                "m.location " +
+                "FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+String.valueOf(season)+
+                " and (GUEST.title='"+teamName+"');";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        return mCursor;
+
+    }
+
+
+    public Cursor getMatchesHomeSeason(int season, String teamName) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        //String selectQuery = "SELECT m.round as _id, m.round, HOME.title AS home_title, GUEST.title AS guest_title, m.score_home, m.score_guest, m.datem, m.location FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+ String.valueOf(season) + " and (GUEST.title='"+teamName+"');";
+        String selectQuery = "SELECT m.round as _id, " +
+                "m.round, " +
+                "HOME.title AS home_title, " +
+                "HOME.emblem AS homeLogo, " +
+                "GUEST.title AS guest_title, " +
+                "GUEST.emblem AS guestLogo, " +
+                "m.score_home, " +
+                "m.score_guest, " +
+                "m.datem, " +
+                "m.location " +
+                "FROM matches AS m JOIN teams AS HOME ON m.home_team_id=HOME.T_ID JOIN teams AS GUEST ON m.guest_team_id=GUEST.T_ID where m.season="+String.valueOf(season)+
+                " and (HOME.title='"+teamName+"');";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        return mCursor;
+
+    }
+
     /*
     * Возвращает текущее количество матчей в базе данных */
     public int getNumberOfMatches(int season) throws SQLException
@@ -236,6 +285,19 @@ public class FootballDBHelper extends SQLiteOpenHelper
         Cursor mCursor = db.rawQuery(selectQuery, null);
 
         return mCursor;
+    }
+
+    public int getNumberRounds(int season) throws SQLException
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "select distinct round, round as _id from matches where season="+ String.valueOf(season)+";";
+
+        Cursor mCursor = db.rawQuery(selectQuery, null);
+
+        if (mCursor != null)
+            return mCursor.getCount();
+
+        return 0;
     }
 
     public int getInProgressRounds(int season) throws SQLException
@@ -540,9 +602,13 @@ public class FootballDBHelper extends SQLiteOpenHelper
                 " AND " + MATCHES_DATEM + "='" + inDateAndTime + "'";
 
         Cursor mCursor = db.rawQuery(selectQuery, null);
-        if (mCursor !=null) {
+        if (mCursor !=null &&
+            mCursor.getCount() > 0)
+        {
             mCursor.moveToFirst();
-            return mCursor.getInt(mCursor.getColumnIndex(Schema.MATCHES_M_ID));
+            int index = mCursor.getColumnIndex(Schema.MATCHES_M_ID);
+            int mID = mCursor.getInt(index);
+            return mID;
         }
         else
             return -1;
@@ -653,6 +719,15 @@ public class FootballDBHelper extends SQLiteOpenHelper
             long rowID = db.insert(TABLE_MATCHES, null, _matchValue);
             if (rowID < 0)
                 Log.v(TRACE, "addMatch FAILED");
+        }
+
+        public void updateMatch(int matchID, ContentValues _matchValue)
+        {
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            int count = db.update(TABLE_MATCHES, _matchValue, "M_ID=?", new String[] {String.valueOf(matchID)});
+            if (count < 0)
+                Log.v(TRACE, "updateMatch FAILED");
         }
 
         public void addPlayer(ContentValues _playerValue)

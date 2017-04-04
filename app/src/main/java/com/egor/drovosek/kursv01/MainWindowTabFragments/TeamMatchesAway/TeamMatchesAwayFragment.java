@@ -1,4 +1,4 @@
-package com.egor.drovosek.kursv01.MainWindowTabFragments.TeamStaffTab;
+package com.egor.drovosek.kursv01.MainWindowTabFragments.TeamMatchesAway;
 
 /**
  * Created by Drovosek on 27/01/2017.
@@ -13,7 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
+
 
 import com.egor.drovosek.kursv01.DB.FootballDBHelper;
 import com.egor.drovosek.kursv01.R;
@@ -21,48 +21,42 @@ import com.egor.drovosek.kursv01.R;
 import static com.egor.drovosek.kursv01.MainActivity.gdSeason;
 
 
-public class TeamStaffFragment extends Fragment {
+public class TeamMatchesAwayFragment extends Fragment {
 
     FootballDBHelper mDB;
-    public Context context;
     String teamName;
+    public Context context;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("Debug", "TeamStaffFragment::onCreate()");
-        context = getActivity().getApplicationContext();
+        Log.i("Debug", "TeamMatchesAwayFragment::onCreate()");
 
-        mDB = new FootballDBHelper(context);
         Bundle args = getArguments();
         teamName = args.getString("teamName");
+
+        context = getActivity().getApplicationContext();
+
+        mDB = new FootballDBHelper(getActivity().getApplicationContext());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Log.i("Debug", "TeamStaffFragment::onCreateView()");
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.tab_team_summary, container, false);
-        Context context = getActivity().getApplicationContext();
-
-        String couchName = mDB.getCouchOfTeam(gdSeason, teamName);
-
-        TextView couchView = (TextView) view.findViewById(R.id.couchView);
-        couchView.setText(couchName);
+        Log.i("Debug", "TeamMatchesAwayFragment::onCreateView()");
+        View view = inflater.inflate(R.layout.tab_team_matches, container, false);
 
         // Find ListView to populate
-        ListView lvItems = (ListView) view.findViewById(R.id.staffList);
+        ListView lvItems = (ListView) view.findViewById(R.id.team_matches_list);
 
-        Cursor staffCursor = mDB.getMembersOfTeam(gdSeason, teamName);
+        Cursor matchesCursor = mDB.getMatchesAwaySeason(gdSeason, teamName);
 
         // Setup cursor adapter using cursor from last step
-        TeamStaffListAdapter staffAdapter = new TeamStaffListAdapter(context, staffCursor);
+        TeamMatchesAwayListAdapter matchAdapter = new TeamMatchesAwayListAdapter(context, matchesCursor);
 
         // Attach cursor adapter to the ListView
-        lvItems.setAdapter(staffAdapter);
-
+        lvItems.setAdapter(matchAdapter);
         return view;
     }
 

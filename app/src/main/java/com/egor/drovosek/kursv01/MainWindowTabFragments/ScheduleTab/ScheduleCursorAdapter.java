@@ -100,6 +100,7 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
 
         TextView groupRoundName = (TextView)holder.getView(R.id.group_round_name);
         groupRoundName.setText(groupTitle);
+        groupRoundName.setTextColor(Color.WHITE);
 
         return row;
         //return super.getGroupView(groupPosition, isExpanded, convertView, parent);
@@ -121,14 +122,13 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
         int scoreGuest = temp.getInt(temp.getColumnIndex("score_guest"));
         String dateAndTime = temp.getString(temp.getColumnIndex("datem"));
 
-        byte[] homeLogoBlob  = temp.getBlob(temp.getColumnIndex("homeLogo"));
-        Bitmap homeLogo    = BitmapFactory.decodeByteArray(homeLogoBlob, 0 ,homeLogoBlob.length);
+        byte[] homeLogoBlob = temp.getBlob(temp.getColumnIndex("homeLogo"));
+        Bitmap homeLogo = BitmapFactory.decodeByteArray(homeLogoBlob, 0, homeLogoBlob.length);
 
-        byte[] guestLogoBlob  = temp.getBlob(temp.getColumnIndex("guestLogo"));
-        Bitmap guestLogo    = BitmapFactory.decodeByteArray(guestLogoBlob, 0 ,guestLogoBlob.length);
+        byte[] guestLogoBlob = temp.getBlob(temp.getColumnIndex("guestLogo"));
+        Bitmap guestLogo = BitmapFactory.decodeByteArray(guestLogoBlob, 0, guestLogoBlob.length);
 
-        if (row == null)
-        {
+        if (row == null) {
             LayoutInflater infalInflater = (LayoutInflater) this.context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -168,8 +168,11 @@ public class ScheduleCursorAdapter extends SimpleCursorTreeAdapter
 
         tvHome.setText(homeTeam);
         tvGuest.setText(guestTeam);
-        if(scoreHome == -1)
+        if (scoreHome == -1)
+        {
             tvScore.setText("-:-"); //матч не начался
+            tvScore.setVisibility(View.INVISIBLE);
+        }
         else
             tvScore.setText(scoreHome + " : " + scoreGuest);
 

@@ -1,4 +1,4 @@
-package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
+package com.egor.drovosek.kursv01.trash;
 
 /**
  * Created by Drovosek on 27/01/2017.

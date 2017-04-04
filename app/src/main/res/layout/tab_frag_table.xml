@@ -31,30 +31,35 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
-                android:id="@+id/titleTeams" />
+                android:id="@+id/titleTeams"
+                android:textColor="@android:color/background_light" />
             <TextView
                 android:text="В"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="@android:color/background_light"
                 android:id="@+id/titlePlays" />
             <TextView
                 android:text="В"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="@android:color/background_light"
                 android:id="@+id/titleWons" />
             <TextView
                 android:text="Н"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="@android:color/background_light"
                 android:id="@+id/titleDraws" />
             <TextView
                 android:text="П"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="@android:color/background_light"
                 android:id="@+id/titleLosts" />
             <TextView
                 android:text="+/-"
@@ -62,6 +67,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
                 tools:textAlignment="center"
+                android:textColor="@android:color/background_light"
                 android:id="@+id/titleGoalsForAgainst" />
             <TextView
                 android:text="(з-п)"
@@ -69,6 +75,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:id="@+id/titleGoalsDifferecnces"
+                android:textColor="@android:color/background_light"
                 android:textAlignment="center" />
             <TextView
                 android:text="О"
@@ -76,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:id="@+id/titlePoints"
+                android:textColor="@android:color/background_light"
                 tools:textAlignment="center" />
     </LinearLayout>
     <ListView

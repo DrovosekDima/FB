@@ -1,4 +1,4 @@
-package com.egor.drovosek.kursv01.MainWindowTabFragments.TeamMatchesTab;
+package com.egor.drovosek.kursv01.MainWindowTabFragments.TeamMatchesAway;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -11,15 +11,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab.ScheduleCursorAdapter;
 import com.egor.drovosek.kursv01.R;
 
 /**
  * Created by Drovosek on 17/03/2017.
  */
 
-public class TeamMatchesListAdapter extends CursorAdapter {
-    public TeamMatchesListAdapter(Context context, Cursor cursor) {
+public class TeamMatchesAwayListAdapter extends CursorAdapter {
+    public TeamMatchesAwayListAdapter(Context context, Cursor cursor) {
         super(context, cursor, 0);
     }
 
@@ -61,7 +60,10 @@ public class TeamMatchesListAdapter extends CursorAdapter {
         tvHome.setText(homeTeam);
         tvGuest.setText(guestTeam);
         if(scoreHome == -1)
+        {
             tvScore.setText("-:-"); //матч не начался
+            tvScore.setVisibility(View.INVISIBLE);
+        }
         else
             tvScore.setText(scoreHome + " : " + scoreGuest);
 

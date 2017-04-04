@@ -1,4 +1,4 @@
-package com.egor.drovosek.kursv01.MainWindowTabFragments.ScheduleTab;
+package com.egor.drovosek.kursv01.trash;
 
 /**
  * Created by Drovosek on 03/02/2017.
@@ -264,7 +264,7 @@ public class RoundMatchExpandListAdapter extends BaseExpandableListAdapter {
 
                 if (grab) {
                     DataMiner dm = new DataMiner(mContext);
-                    dm.populateScheduleWithoutGoalsFG(season, round);
+                    dm.grabSchedule(season);
                 }
 
                 Cursor temp = db.getMatchesSeasonRound(season, round);

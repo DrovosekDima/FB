@@ -24,13 +24,15 @@ public class StatisticCursorAdapter extends SimpleCursorAdapter
     public Cursor cursor;
     private Context context;
     String TAG = "StatsCursorAdapter";
+    String team;
 
-    public StatisticCursorAdapter(Context inContext, int layout, Cursor inCursor, String[] from, int[] to)
+    public StatisticCursorAdapter(Context inContext, int layout, Cursor inCursor, String[] from, int[] to, String inTeamName)
     {
         super(inContext, layout, inCursor, from, to);
         Log.i(TAG, "StatisticCursorAdapter constructor with empty cursor");
         cursor = inCursor;
         context = inContext;
+        team = inTeamName;
     }
 
     @Override
@@ -105,6 +107,8 @@ public class StatisticCursorAdapter extends SimpleCursorAdapter
             {
                 row.setBackgroundColor(Color.LTGRAY);
             }
+            if (teamName.compareTo(team) == 0)
+                row.setBackgroundColor(Color.RED);
         }
 
         return (row);

@@ -37,15 +37,11 @@ public class NewsTabFragment extends Fragment {
         Context context = getActivity().getApplicationContext();
 
         webView = (WebView) view.findViewById(R.id.webview);
-        //webView.loadUrl("http://football.by/news/belarus/");
+        webView.loadUrl("http://football.by/news/belarus/");
         return view;
     }
 
-    /**
-     * Called when the Fragment is visible to the user.  This is generally
-     * tied to {@link Activity#onStart() Activity.onStart} of the containing
-     * Activity's lifecycle.
-     */
+    /* Called when the Fragment is visible to the user.  */
     @Override
     public void onStart() {
         super.onStart();
