@@ -80,7 +80,6 @@ public class DataMiner {
         }
 
             /*вариант для http://fbdata.ucoz.net*/
-        //todo обработка номера сезона
 
         Element tblOneSeason = tables.get(0); //первая таблица содержит комманды за 2016
         Elements rows = tblOneSeason.select("tr");
@@ -657,7 +656,7 @@ public class DataMiner {
         Element item;
         Elements tables;
 
-        /*todo: добавить проверку есть ли такие данные в таблице*/
+        /*добавить проверку есть ли такие данные в таблице*/
         // Done. проверка есть перед вызовом grabSchedule()
 
         Document doc = null;//Здесь хранится будет разобранный html документ

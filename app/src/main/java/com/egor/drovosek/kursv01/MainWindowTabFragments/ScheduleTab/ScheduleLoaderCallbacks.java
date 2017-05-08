@@ -48,7 +48,7 @@ public class ScheduleLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cu
             HashMap<Integer, Integer> groupMap = mAdapter.getGroupMap();
             int inRound = id;//groupMap.get(id);
             Log.i(TAG1, "child. round #" + inRound);
-            cl = new ScheduleMatchesCursorLoader(mContext, inRound); //TODO replace 1 with round #
+            cl = new ScheduleMatchesCursorLoader(mContext, inRound);
         }
 
         return cl;
